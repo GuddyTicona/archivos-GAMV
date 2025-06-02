@@ -1,0 +1,63 @@
+@extends('layouts.admin')
+@section('content')
+<div class="content" style="margin-left: 70px">
+    <h1>Actualizar datos de la unidad</h1><br>
+    <div class="row">
+        <div class="col-md-10">
+            <div class="card card-outline card-success">
+                <div class="card-header">
+                    <h3 class="card-title"><b>Registro de datos unidad</b></h3>
+                    <div class="card-tools">
+
+                    </div>
+                </div>
+
+                <div class="card-body" style="display: block;">
+                    <form action="{{url('/unidades',$unidad->id)}}" method="post" enctype="multipart/form-data">
+                    @csrf
+                    {{method_field('PATCH')}}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for=""> Nombre unidad</label>
+                                <input type="text" name="nombre_unidad" value="{{$unidad->nombre_unidad}}"class="form-control"required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for=""> Descripcion unidad</label>
+                                <input type="text" name="descripcion" value="{{$unidad->descripcion}}" class="form-control"required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for=""> Fecha</label>
+                                <input type="date" name="fecha_creacion" value="{{$unidad->fecha_creacion}}" class="form-control"required>
+                            </div>
+                        </div>
+<!--  <div class="col-md-3"></div>-->
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group ">
+                                
+                                <button type="submit" class="btn btn-success">Actualizar Registro</button>
+                                  <a href="{{ route('unidades.index') }}" class="btn btn-secondary">Volver</a>
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+@endsection
