@@ -40,9 +40,10 @@
                                     <th>Unidad Instalacion</th>
                                     <th>Observaciones</th>
                                     <th>Fecha Registro</th>
-                                    <th>Unidad Id</th>
+                                    <th>Unidad</th>
                                     <th>Estado</th>
-                                    <th>Categoria Id</th>
+                                    <th>Categoria</th>
+                                    <th>Documento Adjunto</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -62,6 +63,16 @@
                                     <td>{{ $archivo->estado }}</td>
                                     <td>{{ $archivo->Categorias->nombre_categoria }}</td>
                                     <td>
+                                        @if ($archivo->documento_adjunto)
+                                        <a href="{{ asset('storage/' . $archivo->documento_adjunto) }}"
+                                            target="_blank" class="btn btn-sm btn-outline-secondary">
+                                            Ver documento
+                                        </a>
+                                        @else
+                                        <span class="text-muted">No adjunto</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         <form action="{{ route('archivos.destroy', $archivo->id) }}" method="POST">
                                             <a class="btn btn-sm btn-primary"
                                                 href="{{ route('archivos.show', $archivo->id) }}"><i
@@ -72,7 +83,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm"
-                                                onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i
+                                                onclick="event.preventDefault(); confirm('Esta seguro de eliminar?') ? this.closest('form').submit() : false;"><i
                                                     class="fa fa-fw fa-trash"></i> </button>
                                         </form>
                                     </td>
@@ -88,95 +99,95 @@
     </div>
 </div>
 
-{{-- SCRIPT DATATABLE --}}
-<script>
-$(function() {
-    $("#example1").DataTable({
-        "pageLength": 5,
-        "language": {
-            "emptyTable": "No hay información",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ archivos",
-            "infoEmpty": "Mostrando 0 a 0 de 0 archivos",
-            "infoFiltered": "(Filtrado de _MAX_ archivos totales)",
-            "lengthMenu": "Mostrar _MENU_ archivos",
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "search": "Buscar:",
-            "zeroRecords": "Sin resultados encontrados",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            }
-        },
-        "responsive": true,
-        "lengthChange": true,
-        "autoWidth": false,
-        buttons: [{
-                extend: 'collection',
-                text: 'Reportes',
+        {{-- SCRIPT DATATABLE --}}
+        <script>
+        $(function() {
+            $("#example1").DataTable({
+                "pageLength": 5,
+                "language": {
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ archivos",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 archivos",
+                    "infoFiltered": "(Filtrado de _MAX_ archivos totales)",
+                    "lengthMenu": "Mostrar _MENU_ archivos",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                "responsive": true,
+                "lengthChange": true,
+                "autoWidth": false,
                 buttons: [{
-                        text: 'Copiar',
-                        extend: 'copy',
+                        extend: 'collection',
+                        text: 'Reportes',
+                        buttons: [{
+                                text: 'Copiar',
+                                extend: 'copy',
+                            },
+                            {
+                                extend: 'pdf',
+                                text: 'PDF',
+                                orientation: 'landscape',
+                                pageSize: 'LEGAL',
+                                exportOptions: {
+                                    columns: ':visible'
+                                },
+                                customize: function(doc) {
+                                    doc.styles.tableHeader.fontSize = 9;
+                                    doc.defaultStyle.fontSize = 7;
+                                    doc.pageMargins = [10, 10, 10, 10];
+                                    var objLayout = {};
+                                    objLayout['hLineWidth'] = function(i) {
+                                        return .5;
+                                    };
+                                    objLayout['vLineWidth'] = function(i) {
+                                        return .5;
+                                    };
+                                    objLayout['hLineColor'] = function(i) {
+                                        return '#aaa';
+                                    };
+                                    objLayout['vLineColor'] = function(i) {
+                                        return '#aaa';
+                                    };
+                                    objLayout['paddingLeft'] = function(i) {
+                                        return 2;
+                                    };
+                                    objLayout['paddingRight'] = function(i) {
+                                        return 2;
+                                    };
+                                    doc.content[1].layout = objLayout;
+                                    var colCount = doc.content[1].table.body[0].length;
+                                    doc.content[1].table.widths = Array(colCount).fill('*');
+                                }
+                            },
+                            {
+                                extend: 'csv',
+                                text: 'CSV'
+                            },
+                            {
+                                extend: 'excel',
+                                text: 'Excel'
+                            },
+                            {
+                                extend: 'print',
+                                text: 'Imprimir'
+                            }
+                        ]
                     },
                     {
-                        extend: 'pdf',
-                        text: 'PDF',
-                        orientation: 'landscape',
-                        pageSize: 'LEGAL',
-                        exportOptions: {
-                            columns: ':visible'
-                        },
-                        customize: function(doc) {
-                            doc.styles.tableHeader.fontSize = 9;
-                            doc.defaultStyle.fontSize = 7;
-                            doc.pageMargins = [10, 10, 10, 10];
-                            var objLayout = {};
-                            objLayout['hLineWidth'] = function(i) {
-                                return .5;
-                            };
-                            objLayout['vLineWidth'] = function(i) {
-                                return .5;
-                            };
-                            objLayout['hLineColor'] = function(i) {
-                                return '#aaa';
-                            };
-                            objLayout['vLineColor'] = function(i) {
-                                return '#aaa';
-                            };
-                            objLayout['paddingLeft'] = function(i) {
-                                return 2;
-                            };
-                            objLayout['paddingRight'] = function(i) {
-                                return 2;
-                            };
-                            doc.content[1].layout = objLayout;
-                            var colCount = doc.content[1].table.body[0].length;
-                            doc.content[1].table.widths = Array(colCount).fill('*');
-                        }
-                    },
-                    {
-                        extend: 'csv',
-                        text: 'CSV'
-                    },
-                    {
-                        extend: 'excel',
-                        text: 'Excel'
-                    },
-                    {
-                        extend: 'print',
-                        text: 'Imprimir'
+                        extend: 'colvis',
+                        text: 'Visor de columnas',
+                        collectionLayout: 'fixed three-column'
                     }
                 ]
-            },
-            {
-                extend: 'colvis',
-                text: 'Visor de columnas',
-                collectionLayout: 'fixed three-column'
-            }
-        ]
-    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-});
-</script>
-@endsection
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        });
+        </script>
+        @endsection

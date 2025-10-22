@@ -16,15 +16,19 @@
                         <div class="float-right">
                             <a href="{{ route('historial-archivos.create') }}"
                                 class="btn btn-primary btn-sm float-right" data-placement="left">
-                               Crear nuevo
+                                Crear nuevo
                             </a>
                         </div>
                     </div>
                 </div>
-                @if ($message = Session::get('success'))
-                <div class="alert alert-success m-4">
-                    <p>{{ $message }}</p>
-                </div>
+                @if($message = Session::get('mensaje'))
+                <script>
+                Swal.fire({
+                    title: "Felicidades",
+                    text: "{{$message}}",
+                    icon: "success"
+                });
+                </script>
                 @endif
 
                 <div class="card-body bg-white">
@@ -34,8 +38,8 @@
                                 <tr>
                                     <th>No</th>
 
-                                    <th>Archivo Id</th>
-                                    <th>User Id</th>
+                                    <th>Archivo (informacion)</th>
+                                    <th>Usuario</th>
                                     <th>Tipo Evento</th>
                                     <th>Observaciones</th>
                                     <th>Id Financiera</th>
@@ -135,7 +139,7 @@
                                                         return 2;
                                                     };
                                                     objLayout['paddingRight'] = function(
-                                                    i) {
+                                                        i) {
                                                         return 2;
                                                     };
                                                     doc.content[1].layout = objLayout;

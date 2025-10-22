@@ -31,6 +31,7 @@ class ArchivoRequest extends FormRequest
 			'observaciones' => 'string',
 			'fecha_registro' => 'required',
 			'estado' => 'required|string',
+            'documento_adjunto' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:2048',
         ];
     }
 }

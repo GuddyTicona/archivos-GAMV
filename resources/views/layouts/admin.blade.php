@@ -191,8 +191,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        <img src="{{url('/dist/img/user2-160x160.jpg')}}" class="img-circle elevation-2"
-                            alt="User Image">
+                        <img src="{{url('/dist/img/usuario.png')}}" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
                         <a href="#" class="d-block">{{Auth::user()->name}}</a>
@@ -218,152 +217,347 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
+                        <!-- Unidades -->
+                        <style>
+                        /* Estilo general del menú formal */
+                        .nav-sidebar .nav-link {
+                            color: #2c3e50;
+                            /* azul oscuro elegante */
+                            font-weight: 500;
+                            font-size: 0.95rem;
+                            transition: background 0.3s, color 0.3s;
+                        }
+
+                        .nav-sidebar .nav-link.active {
+                            background-color: #34495e;
+                            /* fondo gris oscuro */
+                            color: #ecf0f1;
+                            /* texto blanco */
+                            font-weight: bold;
+                        }
+
+                        .nav-sidebar .nav-link:hover {
+                            background-color: #2c3e50;
+                            color: #ffffff;
+                        }
+
+                        .nav-sidebar .nav-treeview {
+                            padding-left: 15px;
+                        }
+
+                        .nav-sidebar .nav-treeview .nav-link {
+                            font-size: 0.9rem;
+                            color: #34495e;
+                        }
+
+                        .nav-sidebar .nav-treeview .nav-link:hover {
+                            color: #1abc9c;
+                            /* color verde formal para resaltar */
+                            font-weight: 600;
+                        }
+
+                        /* Iconos */
+                        .nav-link i {
+                            margin-right: 10px;
+                            font-size: 1.1rem;
+                        }
+
+                        /* Submenús con borde suave */
+                        .nav-sidebar .nav-treeview {
+                            border-left: 2px solid #bdc3c7;
+                            margin-left: 5px;
+                            padding-left: 10px;
+                        }
+                        </style>
+
+                        <!-- Unidades -->
                         <li class="nav-item">
-                            <a href="#" class="nav-link active">
-                               <i class="bi bi-diagram-2-fill"></i>
-                                <p>
-                                    Unidades Viacha
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-diagram-2-fill"></i>
+                                <p>Unidades Viacha <i class="right fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{url('unidades/create')}}" class="nav-link ">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Nuevas Unidades</p>
+                                    <a href="{{ url('unidades/create') }}" class="nav-link">
+                                        <i class="bi bi-plus-circle"></i>
+                                        <p>Crear Unidad</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{url('unidades')}}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                    <a href="{{ url('unidades') }}" class="nav-link">
+                                        <i class="bi bi-list-ul"></i>
                                         <p>Listado Unidades</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
 
-                        <!-- para otro modulo archivos  -->
-                        @can('archivos')
+                        <!-- Archivos -->
                         <li class="nav-item">
-                            <a href="#" class="nav-link active">
-                           <i class="bi bi-wallet2"></i>
-                                <p>
-                                      Archivos Viacha
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-folder2-open"></i>
+                                <p>Archivos Viacha <i class="right fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{url('archivos/create')}}" class="nav-link ">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Nuevos Archivos</p>
+                                    <a href="{{ url('archivos/create') }}" class="nav-link">
+                                        <i class="bi bi-plus-circle"></i>
+                                        <p>Crear Archivo</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{url('archivos')}}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                    <a href="{{ url('archivos') }}" class="nav-link">
+                                        <i class="bi bi-list-ul"></i>
                                         <p>Listado Archivos</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        @endcan
-                        <!-- Modulo categorias-->
+
+                        <!-- Categorías -->
                         <li class="nav-item">
-                            <a href="#" class="nav-link active">
+                            <a href="#" class="nav-link">
                                 <i class="bi bi-archive"></i>
-                                <p>
-                                    Categorias documentos
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
+                                <p>Categorías Documentos <i class="right fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{url('categorias/create')}}" class="nav-link ">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Nuevas categorias</p>
+                                    <a href="{{ url('categorias/create') }}" class="nav-link">
+                                        <i class="bi bi-plus-circle"></i>
+                                        <p>Crear Categoría</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{url('categorias')}}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Listado categorias</p>
+                                    <a href="{{ url('categorias') }}" class="nav-link">
+                                        <i class="bi bi-list-ul"></i>
+                                        <p>Listado Categorías</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <!-- financieras -->
+
+                        <!-- Archivos Financieros -->
                         <li class="nav-item">
-                            <a href="#" class="nav-link active">
-                          <i class="bi bi-bank2"></i>
-                                <p>
-                                    Archivos Financieros
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-bank2"></i>
+                                <p>Archivos Financieros <i class="right fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{url('financieras/create')}}" class="nav-link ">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Financiera</p>
+                                    <a href="{{ url('financieras/create') }}" class="nav-link">
+                                        <i class="bi bi-plus-circle"></i>
+                                        <p>Crear Financiera</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{url('financieras')}}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                    <a href="{{ url('financieras') }}" class="nav-link">
+                                        <i class="bi bi-list-ul"></i>
                                         <p>Listado Financieros</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <!-- historial archivos-->
+
+                        <!-- Administración SMAF -->
                         <li class="nav-item">
-                            <a href="#" class="nav-link active">
-                            <i class="bi bi-bar-chart-line-fill"></i>
-                                <p>
-                                    Historial Archivos
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-bank"></i>
+                                <p>Administración SMAF <i class="right fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{url('historial-archivos/create')}}" class="nav-link ">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Historial Archivos</p>
+                                    <a href="{{ route('smaf.financieras.index') }}" class="nav-link">
+                                        <i class="bi bi-gear"></i>
+                                        <p>Gestión Financiera</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{url('historial-archivos')}}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                    <a href="{{ url('areas') }}" class="nav-link">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                        <p>Actas SMAF</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- Administración Despacho -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-briefcase-fill"></i>
+                                <p>Administración Despacho <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+
+
+                                <!-- Registros enviados Despacho -->
+                                <li class="nav-item">
+
+                                    <a href="{{ route('despacho.financieras.index') }}" class="nav-link">
+                                        <i class="bi bi-journal-check"></i>
+                                        <p>Registros enviados Despacho</p>
+                                    </a>
+                                </li>
+
+                                <!-- Actas Despacho -->
+                                <li class="nav-item">
+                                    <a href="{{ route('areas-despacho.index') }}" class="nav-link">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                        <p>Actas Despacho</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+
+                        <!-- Tesorería -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-wallet2"></i>
+                                <p>Administración Tesorería <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('tesoreria.financieras.index') }}" class="nav-link">
+                                        <i class="bi bi-gear"></i>
+                                        <p>Gestión de Registros</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('areas-archivos.index') }}" class="nav-link">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                        <p>Actas Tesorería</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- Archivos -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-wallet2"></i>
+                                <p>Administración Archivos <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('financieras.archivos.index') }}" class="nav-link">
+                                        <i class="bi bi-archive-fill"></i>
+                                        <p>Archivos Financieros</p>
+                                    </a>
+
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- GESTION DE ARCHIVOS-->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-archive"></i>
+                                <p>Gestion Archivos <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('ubicaciones.index') }}" class="nav-link">
+                                        <i class="bi bi-layout-text-sidebar-reverse"></i>
+                                        <p>Ubicación de Archivos</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('prestamos.index') }}" class="nav-link">
+                                        <i class="bi bi-box-arrow-in-down"></i>
+                                        <p>Préstamos de Archivos</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+
+                        <!-- SMAF Registros -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-journal-text"></i>
+                                <p>SMAF <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('preventivos') }}" class="nav-link">
+                                        <i class="bi bi-list-check"></i>
+                                        <p>Registros SMAF</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Historial Archivos -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-bar-chart-line-fill"></i>
+                                <p>Historial Archivos <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('historial-archivos/create') }}" class="nav-link">
+                                        <i class="bi bi-plus-circle"></i>
+                                        <p>Crear Historial</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('historial-archivos') }}" class="nav-link">
+                                        <i class="bi bi-list-ul"></i>
                                         <p>Listado Historial</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <!-- Usuarios-->
+
+                        <!-- Administración Usuarios -->
                         <li class="nav-item">
-                            <a href="#" class="nav-link active">
-                            <i class="bi bi-people-fill"></i>
-                                <p>
-                                    Usuarios
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-user-shield"></i>
+                                <p>Administración <i class="right fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{url('usuarios/create')}}" class="nav-link ">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Nuevos Usuarios</p>
+                                    <a href="{{ route('users.index') }}" class="nav-link">
+                                        <i class="bi bi-person"></i>
+                                        <p>Usuarios</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{url('usuarios')}}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
+                                    <a href="{{ route('roles.index') }}" class="nav-link">
+                                        <i class="bi bi-person-badge"></i>
+                                        <p>Roles</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('permissions.index') }}" class="nav-link">
+                                        <i class="bi bi-key"></i>
+                                        <p>Permisos</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Usuarios -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-people-fill"></i>
+                                <p>Usuarios <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('usuarios/create') }}" class="nav-link">
+                                        <i class="bi bi-person-plus"></i>
+                                        <p>Crear Usuario</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('usuarios') }}" class="nav-link">
+                                        <i class="bi bi-list-ul"></i>
                                         <p>Listado Usuarios</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
+
+
                         <!-- ..-->
                         <li class="nav-item">
 
@@ -454,6 +648,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="{{asset('plugins/datatables-buttons/js/buttons.html5.min.js')}}"></script>
     <script src="{{asset('plugins/datatables-buttons/js/buttons.print.min.js')}}"></script>
     <script src="{{asset('plugins/datatables-buttons/js/buttons.colVis.min.js')}}"></script>
+    <!-- Bootstrap JS y dependencias Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+
+    <!-- Opcional: Iconos de Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
 </body>
 
 </html>

@@ -23,18 +23,26 @@ class FinancieraRequest extends FormRequest
     {
         return [
 			'entidad' => 'required|string',
-			'descripcion_gasto' => 'string',
-			'total_pago' => 'required',
+			
+            'numero_foja'=>'string',
 			'estado_documento' => 'required',
 			'tipo_documento' => 'required|string',
 			'tipo_ejecucion' => 'required|string',
-			'documento_adjunto' => 'string',
+			'documento_adjunto' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:2048',
 			'numero_hoja_ruta' => 'string',
-			'numero_preventivo' => 'string',
 			'numero_compromiso' => 'string',
 			'numero_devengado' => 'string',
 			'numero_pago' => 'string',
-			'numero_secuencia' => 'string',
+			
+            'estado_actualizado' => 'timestamp',
+             'preventivos' => 'required|array|min:1', 
+            'preventivos.*.numero_preventivo' => 'required|string|max:50',
+            'preventivos.*.numero_secuencia' => 'nullable|string|max:50',
+            'preventivos.*.total_pago' => 'required|numeric',
+            'preventivos.*.descripcion_gasto' => 'nullable|string',
+            'preventivos.*.empresa' => 'nullable|string|max:255',
+            'preventivos.*.beneficiario' => 'nullable|string|max:255',
+             'enviado_a_tesoreria' => 'nullable|boolean',
         ];
     }
 }

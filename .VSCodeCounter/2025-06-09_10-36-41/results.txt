@@ -1,0 +1,45 @@
+Date : 2025-06-09 10:36:41
+Directory : c:\xampp\htdocs\sisarchivo\app\Http\Controllers
+Total : 19 files,  771 codes, 153 comments, 211 blanks, all 1135 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| PHP      |         19 |        771 |        153 |        211 |      1,135 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                               | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                  |         19 |        771 |        153 |        211 |      1,135 |
+| . (Files)                                                                          |         12 |        621 |         67 |        156 |        844 |
+| Auth                                                                               |          7 |        150 |         86 |         55 |        291 |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                           | language | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\AdminController.php                | PHP      |         28 |          1 |          8 |         37 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\ArchivoController.php              | PHP      |         71 |         20 |         22 |        113 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\Auth\ConfirmPasswordController.php | PHP      |         13 |         20 |          7 |         40 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\Auth\ForgotPasswordController.php  | PHP      |          8 |         10 |          5 |         23 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\Auth\LoginController.php           | PHP      |         30 |          4 |          7 |         41 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\Auth\RegisterController.php        | PHP      |         38 |          0 |         10 |         48 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\Auth\ResetPasswordController.php   | PHP      |          9 |         15 |          6 |         30 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\Auth\TwoFactorController.php       | PHP      |         37 |         17 |         13 |         67 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\Auth\VerificationController.php    | PHP      |         15 |         20 |          7 |         42 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\CategoriaController.php            | PHP      |         50 |         18 |         17 |         85 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\ChatController.php                 | PHP      |         26 |          2 |          8 |         36 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\Controller.php                     | PHP      |          9 |          0 |          4 |         13 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\FileAssistantController.php        | PHP      |        116 |         10 |         18 |        144 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\FinancieraController.php           | PHP      |         91 |          0 |         15 |        106 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\HistorialArchivoController.php     | PHP      |         73 |          0 |         17 |         90 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\HomeController.php                 | PHP      |         10 |         10 |          6 |         26 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\ProfileController.php              | PHP      |         37 |          0 |         12 |         49 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\UnidadController.php               | PHP      |         55 |          3 |         13 |         71 |
+| c:\xampp\htdocs\sisarchivo\app\Http\Controllers\UserController.php                 | PHP      |         55 |          3 |         16 |         74 |
+| Total                                                                              |          |        771 |        153 |        211 |      1,135 |
++------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

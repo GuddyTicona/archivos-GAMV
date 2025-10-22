@@ -120,6 +120,16 @@
             color: #333;
             align-self: flex-start;
         }
+
+        /* Estilo para las listas dentro de mensajes bot */
+        p.message.bot ul {
+            padding-left: 20px;
+            margin: 5px 0 0 0;
+        }
+
+        p.message.bot ul li {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -167,7 +177,26 @@
         const p = document.createElement('p');
         p.classList.add('message');
         p.classList.add(sender === 'user' ? 'user' : 'bot');
-        p.textContent = sender === 'user' ? 'Tú: ' + text : 'Asistente: ' + text;
+
+        if (sender === 'bot') {
+            // Dividir el texto en líneas usando salto de línea
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            if (lines.length > 1) {
+                const ul = document.createElement('ul');
+                lines.forEach(line => {
+                    const li = document.createElement('li');
+                    li.textContent = line.trim();
+                    ul.appendChild(li);
+                });
+                p.textContent = 'Asistente: ';
+                p.appendChild(ul);
+            } else {
+                p.textContent = 'Asistente: ' + text;
+            }
+        } else {
+            p.textContent = 'Tú: ' + text;
+        }
+
         chatContent.appendChild(p);
         chatContent.scrollTop = chatContent.scrollHeight;
     }

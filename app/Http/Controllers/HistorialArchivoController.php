@@ -45,7 +45,7 @@ class HistorialArchivoController extends Controller
         HistorialArchivo::create($validated);
 
         return Redirect::route('historial-archivos.index')
-            ->with('success', 'HistorialArchivo creado correctamente.');
+            ->with('mensaje', 'HistorialArchivo creado correctamente.');
     }
 
     public function show($id): View
@@ -78,12 +78,12 @@ class HistorialArchivoController extends Controller
         $historialArchivo->update($validated);
 
         return Redirect::route('historial-archivos.index')
-            ->with('success', 'HistorialArchivo actualizado correctamente.');
+            ->with('mensaje', 'HistorialArchivo actualizado correctamente.');
     }
 
     public function destroy($id): RedirectResponse
     {
         HistorialArchivo::findOrFail($id)->delete();
-        return Redirect::route('historial-archivos.index')->with('success', 'HistorialArchivo eliminado correctamente.');
+        return Redirect::route('historial-archivos.index')->with('mensaje', 'HistorialArchivo eliminado correctamente.');
     }
 }

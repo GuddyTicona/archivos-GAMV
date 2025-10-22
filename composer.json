@@ -10,6 +10,7 @@
         "anhskohbo/no-captcha": "^3.7",
         "assistent/sai": "^3.5",
         "bacon/bacon-qr-code": "^3.0",
+        "barryvdh/laravel-dompdf": "^3.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",

@@ -19,10 +19,10 @@
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">
-                <div class="card shadow rounded-4 overflow-hidden">
+                <div class="card shadow rounded-4 overflow-hidden custom-height-card">
                     <div class="row g-0">
                         <!-- Formulario -->
-                        <div class="col-md-6 p-4">
+                        <div class="col-md-6 p-4 d-flex flex-column justify-content-center">
                             <div class="text-center mb-4">
                                 <img src="{{ asset('build/assets/logo1.png') }}" class="img-fluid logo-img" alt="logo">
                                 <h2 class="mt-3">Iniciar Sesión</h2>
@@ -88,8 +88,10 @@
                         <!-- Lado derecho -->
                         <div class="col-md-6 d-flex align-items-center justify-content-center bg-gradient-custom text-white p-4">
                             <div class="text-center">
-                                <h5>Bienvenido al sistema de archivos</h5>
+                                <h2>Bienvenido al Sistema de Archivos Financieros</h2>
                                 <p class="mt-2 small">Gobierno Autónomo Municipal de Viacha</p>
+                              <img src="{{ asset('dist/img/viacha.png') }}" class="img-fluid img-bienvenida mt-3 rounded-circle" alt="Bienvenida">
+
                             </div>
                         </div>
                     </div>
@@ -102,7 +104,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
-    <!-- reCAPTCHA callback opcional -->
     <script>
         var onloadCallback = function () {
             console.log("reCAPTCHA cargado");

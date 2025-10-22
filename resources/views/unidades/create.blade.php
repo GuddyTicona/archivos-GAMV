@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content')
 <div class="content" style="margin-left: 70px">
-    <h1>Crear Nueva Unidad</h1><br>
+    
     <div class="row">
         <div class="col-md-10">
             <div class="card card-outline card-primary">

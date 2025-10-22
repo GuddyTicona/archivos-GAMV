@@ -1,41 +1,18 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
-    <section class="content container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="float-left">
-                            <span class="card-title">Ver usuarios Registrados</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('usuarios.index') }}"> Volver</a>
-                        </div>
-                    </div>
+<div class="container">
+    <h2>Detalle del Usuario</h2>
 
-                    <div class="card-body bg-white">
-                        
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Nombre Usuario:</strong>
-                                    {{ $usuarios->name }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Correo Email:</strong>
-                                    {{ $usuarios->email }}
-                                </div>
-                                                                <div class="form-group mb-2 mb20">
-                                    <strong>Fecha Registrado:</strong>
-                                    {{ $usuarios->fecha_ingreso }}
-                                </div>
-                                                                <div class="form-group mb-2 mb20">
-                                    <strong>Estado:</strong>
-                                    {{ $usuarios->estado}}
-                                </div>
+    <div class="card">
+        <div class="card-body">
+            <h4>{{ $usuario->name }}</h4>
+            <p><strong>Correo:</strong> {{ $usuario->email }}</p>
+            <p><strong>Rol(es):</strong> {{ $usuario->roles->pluck('name')->join(', ') }}</p>
+            <p><strong>Permisos:</strong> {{ $usuario->permissions->pluck('name')->join(', ') }}</p>
 
-                    </div>
-                </div>
-            </div>
+            <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">Volver</a>
         </div>
-    </section>
+    </div>
+</div>
 @endsection

@@ -41,7 +41,7 @@ class Archivo extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['codigo_archivo', 'descripcion_documento', 'tomo', 'numero_foja', 'gestion', 'unidad_instalacion', 'observaciones', 'fecha_registro', 'unidad_id', 'estado', 'categoria_id'];
+    protected $fillable = ['codigo_archivo', 'descripcion_documento', 'tomo', 'numero_foja', 'gestion', 'unidad_instalacion', 'observaciones', 'fecha_registro', 'unidad_id', 'estado', 'categoria_id','documento_adjunto'];
 
 
     /**

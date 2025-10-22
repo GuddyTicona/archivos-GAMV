@@ -3,71 +3,68 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use App\Models\User;
-use App\Http\Requests\UserRequest;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    //
-    public function index(Request $request): View
+    public function index()
     {
-        $usuarios = User::paginate();
-         return view('usuarios.index', compact('usuarios'))
-        ->with('i', ($request->input('page', 1) - 1) * $usuarios->perPage());
-    //   return view('usuarios.index', ['usuarios' => $usuarios]);
-
+        $users = User::with('roles')->get();
+        return view('admin.users.index', compact('users'));
     }
 
-    public function create(){
-       $usuarios = new User();
-        
-        return view('usuarios.create', compact('usuarios'));
-       
-    }
-    public function store(UserRequest $request): RedirectResponse 
+    public function create()
     {
-    $data = $request->validated();
-    $data['password'] = Hash::make($request->input('password')); // Encriptar contraseña
-    User::create($data);
-
-    return Redirect::route('usuarios.index')
-        ->with('Mensaje', 'Usuario creado correctamente.');
+        $roles = Role::all();
+        return view('admin.users.create', compact('roles'));
     }
-    public function show($id){
-        $usuarios = User::find($id);
 
-        return view('usuarios.show', compact('usuarios'));
-    }
-    public function edit($id){
-         $usuarios = User::find($id);
-
-        return view('usuarios.edit', compact('usuarios'));
-    }
-    public function update(UserRequest $request, User $usuarios): RedirectResponse 
+    public function store(Request $request)
     {
-    $data = $request->validated();
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|confirmed|min:6',
+            'fecha_ingreso' => 'required|date',
+             'estado' => 'required|string',
+            'roles' => 'required|array',
 
-    // Solo actualiza la contraseña si se proporciona una nueva
-    if ($request->filled('password')) {
-        $data['password'] = Hash::make($request->input('password'));
-    } else {
-        unset($data['password']); // Si está vacía, no actualices la contraseña
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'fecha_ingreso' => $request->fecha_ingreso,
+            'estado' => 'activo',
+        ]);
+
+        $user->syncRoles($request->roles);
+
+        return redirect()->route('users.index')->with('success', 'Usuario creado correctamente');
     }
 
-    $usuarios->update($data);
-
-    return Redirect::route('usuarios.index')
-        ->with('Mensaje', 'Se actualizó el usuario correctamente.');
+    public function edit(User $user)
+    {
+        $roles = Role::all();
+        return view('admin.users.edit', compact('user', 'roles'));
     }
-    public function destroy($id){
-         User::find($id)->delete();
 
-        return Redirect::route('usuarios.index')
-            ->with('Mensaje', 'Usuario eliminado correctamente');
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'roles' => 'required|array',
+        ]);
 
+        $user->syncRoles($request->roles);
+        return redirect()->route('users.index')->with('success', 'Roles del usuario actualizados');
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'Usuario eliminado');
     }
 }

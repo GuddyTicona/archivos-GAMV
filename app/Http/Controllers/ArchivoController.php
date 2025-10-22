@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\ArchivoRequest;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ArchivoController extends Controller
@@ -45,6 +46,8 @@ class ArchivoController extends Controller
          $request->validate([
         // validaciones aquí...
         'unidad_id' => 'required|exists:unidades,id',
+         'documento_adjunto' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:20480', // 20 MB
+       
     ]);
 
     $archivo = new Archivo();
@@ -57,11 +60,19 @@ class ArchivoController extends Controller
     $archivo->observaciones = $request->observaciones;
     $archivo->fecha_registro = $request->fecha_registro;
 
-    //  Asegúrate de esto:
+   
     $archivo->unidad_id = $request->unidad_id;
 
     $archivo->estado = $request->estado;
     $archivo->categoria_id = $request->categoria_id;
+
+         // archivo adjunto
+        if ($request->hasFile('documento_adjunto')) {
+            $file = $request->file('documento_adjunto');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('documentos_adjuntos', $filename, 'public');
+            $archivo->documento_adjunto = $filePath;
+        }
 
     $archivo->save();
 
@@ -85,7 +96,7 @@ class ArchivoController extends Controller
      */
     public function edit($id): View
     {
-       $archivo = Archivo::findOrFail($id); // Mejor usar findOrFail para evitar null
+       $archivo = Archivo::findOrFail($id); 
      $unidades = Unidad::pluck('nombre_unidad', 'id');
      $categorias = Categoria::pluck('nombre_categoria', 'id');
 
@@ -96,12 +107,26 @@ class ArchivoController extends Controller
      * Update the specified resource in storage.
      */
     public function update(ArchivoRequest $request, Archivo $archivo): RedirectResponse
-    {
-        $archivo->update($request->validated());
+{
+    $datos = $request->validated();
 
-        return Redirect::route('archivos.index')
-            ->with('mensaje', 'Archivo actualizado correctamente.');
+    // Manejo del archivo adjunto
+    if ($request->hasFile('documento_adjunto')) {
+        $file = $request->file('documento_adjunto');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $filePath = $file->storeAs('documentos_adjuntos', $filename, 'public');
+        $datos['documento_adjunto'] = $filePath;
+
+       
+        
     }
+
+    $archivo->update($datos);
+
+    return redirect()->route('archivos.index')
+        ->with('mensaje', 'Archivo actualizado correctamente.');
+}
+
 
     public function destroy($id): RedirectResponse
     {

@@ -40,9 +40,39 @@ class Financiera extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['entidad', 'unidad_id', 'descripcion_gasto', 'total_pago', 'estado_documento', 'tipo_documento', 'tipo_ejecucion', 'fecha_documento', 'documento_adjunto', 'numero_hoja_ruta', 'numero_preventivo', 'numero_compromiso', 'numero_devengado', 'numero_pago', 'numero_secuencia'];
+
+protected $fillable = [
+    'entidad',
+    'unidad_id',
+    'area_despacho_id',
+    'area_archivo_id',
+    'area_id',
+    'estado_documento',
+    'tipo_documento',
+    'tipo_ejecucion',
+    'fecha_documento',
+    'documento_adjunto',
+    'numero_hoja_ruta',
+    'numero_compromiso',
+    'numero_devengado',
+    'numero_pago',
+    'numero_foja',
+    'estado_administrativo',
+    'estado_actualizado',
+    'descripcion_gasto',
+    'total_pago',
+    'estado_despacho',
+    'despacho_actualizado',
+    'codigo',
+    'enviado_archivo',
+    'ubicacion_id',
+    
+];
 
 
+     protected $casts = [
+        'estado_actualizado' => 'datetime',
+    ];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -50,5 +80,49 @@ class Financiera extends Model
     {
         return $this->belongsTo(\App\Models\Unidad::class, 'unidad_id', 'id');
     }
-    
+//areas
+   
+    public function area()
+    {
+        return $this->belongsTo(Area::class);
+    }
+    //areas despacho
+    public function areaDespacho()
+    {
+    return $this->belongsTo(AreaDespacho::class, 'area_despacho_id');
+    }
+    //areas archivos
+    public function areaArchivo()
+    {
+    return $this->belongsTo(AreaArchivo::class, 'area_archivo_id');
+    }
+
+    //preventivos
+
+     public function preventivos()
+    {
+        return $this->hasMany(Preventivo::class);
+    }
+
+
+     public function ubicacion()
+    {
+        return $this->belongsTo(Ubicacion::class);
+    }
+
+    public function prestamos()
+    {
+        return $this->hasMany(PrestamoArchivo::class);
+    }
+
+    public function ultimoPrestamo()
+    {
+        return $this->hasOne(PrestamoArchivo::class)->latestOfMany();
+    }
+
+    public function disponible()
+    {
+        $ultimo = $this->ultimoPrestamo;
+        return !$ultimo || $ultimo->fecha_devolucion != null;
+    }
 }
