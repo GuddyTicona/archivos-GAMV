@@ -61,9 +61,13 @@
                     <!-- Acciones -->
                     <td>
                         <div class="btn-group" role="group">
-                            <a href="{{ route('financieras.archivos.show', $item->id) }}" class="btn btn-primary btn-sm">Ver</a>
-                            <a href="{{ route('smaf.financieras.edit', $item->id) }}" class="btn btn-success btn-sm">Editar</a>
-                            <a href="{{ route('ubicaciones.seleccionarEstante', $item->id) }}" class="btn btn-info btn-sm">
+                            <a href="{{ route('financieras.archivos.show', $item->id) }}"
+                                class="btn btn-primary btn-sm">Ver</a>
+                            <a href="{{ route('financieras.editArchivo', $item->id) }}" class="btn btn-warning btn-sm">
+                                Editar Archivo
+                            </a>
+                            <a href="{{ route('ubicaciones.seleccionarEstante', $item->id) }}"
+                                class="btn btn-info btn-sm">
                                 <i class="bi bi-pin-map-fill"></i> Asignar
                             </a>
                         </div>
@@ -109,7 +113,13 @@ $(document).ready(function() {
 @endsection
 
 <style>
-.table th, .table td { vertical-align: middle; }
-.btn-sm { font-size: 0.8rem; }
+.table th,
+.table td {
+    vertical-align: middle;
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+}
 </style>
 @endsection

@@ -379,18 +379,59 @@ public function showArchivos($id)
     return view('financiera.archivos.show', compact('financiera'));
 }
 
+public function updateArchivo(Request $request, Financiera $financiera): RedirectResponse
+{
 
-    // Función para actualizar preventivos
+    $request->validate([
+        'preventivos.*.id' => 'required|exists:preventivos,id',
+        'preventivos.*.numero_preventivo' => 'required|string|max:50',
+        'preventivos.*.numero_secuencia' => 'nullable|string|max:50',
+        'preventivos.*.empresa' => 'nullable|string|max:100',
+        'preventivos.*.beneficiario' => 'nullable|string|max:150',
+        'preventivos.*.descripcion_gasto' => 'nullable|string|max:255',
+        'preventivos.*.total_pago' => 'required|numeric',
+        //'area_archivo_id' => 'nullable|exists:areas_archivos,id',
+
+        'documento_adjunto' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:20480',
+    ]);
+
+   // $financiera->area_archivo_id = $request->area_archivo_id;
+    //$financiera->save();
+
+   $this->actualizarPreventivos($financiera, $request->preventivos);
+
+    if ($request->hasFile('documento_adjunto')) {
+
+       
+        if ($financiera->documento_adjunto && Storage::disk('public')->exists($financiera->documento_adjunto)) {
+            Storage::disk('public')->delete($financiera->documento_adjunto);
+        }
+
+        $path = $request->file('documento_adjunto')->store('documentos_adjuntos', 'public');
+
+        $financiera->update([
+            'documento_adjunto' => $path
+        ]);
+    }
+
+    return redirect()->route('tesoreria.financieras.index')
+        ->with('mensaje', 'Preventivos y archivo actualizados correctamente por Tesorería.');
+}
+    public function editArchivo($id): View
+    {
+        $financiera = Financiera::with('preventivos')->findOrFail($id);
+        // $areasArchivos = AreaArchivo::all();
+        return view('financiera.archivos.edit', compact('financiera'));
+
+    }
    protected function actualizarPreventivos(Financiera $financiera, ?array $preventivos = null): void
 {
     if (empty($preventivos)) return;
 
     foreach ($preventivos as $data) {
-        // Normaliza y evita avisos
         $numeroPreventivo = $data['numero_preventivo'] ?? null;
         $totalPago        = $data['total_pago']        ?? null;
 
-        // Si quieres ignorar filas vacías (por si el usuario añadió y no llenó):
         if ($numeroPreventivo === null || $totalPago === null) {
             continue;
         }
@@ -408,7 +449,6 @@ public function showArchivos($id)
                 $preventivo->save();
             }
         } else {
-            // ➕ Crear nuevo (SMAF permite agregar)
             $financiera->preventivos()->create([
                 'numero_preventivo' => (string) $numeroPreventivo,
                 'numero_secuencia'  => $data['numero_secuencia']  ?? null,

@@ -42,4 +42,15 @@ class PrestamoArchivoController extends Controller
         $prestamo->update(['fecha_devolucion' => now()]);
         return redirect()->back()->with('success', 'Archivo devuelto correctamente.');
     }
+    // Eliminar un préstamo de archivo
+public function destroy(PrestamoArchivo $prestamo)
+{
+    try {
+        $prestamo->delete();
+        return redirect()->back()->with('success', 'Préstamo eliminado correctamente.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'No se pudo eliminar el préstamo. Intente de nuevo.');
+    }
+}
+
 }

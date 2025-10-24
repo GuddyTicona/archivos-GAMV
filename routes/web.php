@@ -228,6 +228,12 @@ Route::get('/archivos-financieras', [FinancieraController::class, 'archivos'])
 Route::get('financieras/archivos/{id}', [FinancieraController::class, 'showArchivos'])
     ->name('financieras.archivos.show');
 
+// ===== ARCHIVOS – TESORERÍA =====
+Route::get('/financieras/{id}/edit-archivo', [FinancieraController::class, 'editArchivo'])
+    ->name('financieras.editArchivo');
+
+Route::patch('/financieras/{financiera}/update-archivo', [FinancieraController::class, 'updateArchivo'])
+    ->name('financieras.updateArchivo');
 
 
 Route::get('/financieras/tesoreria', [FinancieraController::class, 'tesoreria'])->name('financieras.tesoreria');
@@ -264,4 +270,4 @@ Route::get('/ubicaciones/estante/{estante}', [UbicacionController::class, 'showE
     ->name('ubicaciones.show_estante');
 Route::get('/ubicaciones/ver-estante/{estante}', [UbicacionController::class, 'showEstante'])
     ->name('ubicaciones.ver_estante');
-   
+Route::delete('/prestamos/{prestamo}', [PrestamoArchivoController::class, 'destroy'])->name('prestamos.destroy');
