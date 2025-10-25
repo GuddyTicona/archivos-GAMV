@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PrestamoArchivo;
+use App\Models\Financiera;
+
 
 class PrestamoArchivoController extends Controller
 {
@@ -12,6 +14,11 @@ class PrestamoArchivoController extends Controller
         $prestamos = PrestamoArchivo::with('financiera')->latest()->get();
         return view('prestamos.index', compact('prestamos'));
     }
+       public function create(Financiera $financiera)
+    {
+        return view('prestamos.create', compact('financiera'));
+    }
+
 
     public function store(Request $request)
     {

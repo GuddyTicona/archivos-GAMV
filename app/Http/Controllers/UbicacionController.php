@@ -152,20 +152,29 @@ public function asignarUbicacion(Request $request, $archivoId)
 
     $archivo = Financiera::findOrFail($archivoId);
 
-    // Buscar una ubicación libre en el estante seleccionado
+ 
     $ubicacionLibre = Ubicacion::where('estante', $request->estante)
-        ->whereDoesntHave('financieras') // que no tenga archivo asignado
+        ->whereDoesntHave('financieras') 
         ->first();
 
     if (!$ubicacionLibre) {
         return back()->with('error', 'No hay ubicaciones disponibles en este estante.');
     }
 
-    // Asignar el archivo a la ubicación
+
     $ubicacionLibre->financieras()->save($archivo);
 
     return redirect()->route('ubicaciones.index')
         ->with('success', 'El archivo se asignó correctamente al estante ' . $request->estante);
 }
+
+public function showRegistro($id)
+{
+    $financiera = Financiera::with(['preventivos', 'unidad', 'ubicacion'])
+        ->findOrFail($id);
+
+    return view('ubicaciones.show_registro', compact('financiera'));
+}
+
 
 }

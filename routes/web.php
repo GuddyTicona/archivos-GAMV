@@ -268,6 +268,11 @@ Route::post('/prestamos', [PrestamoArchivoController::class, 'store'])->name('pr
 Route::patch('/prestamos/{prestamo}/devolver', [PrestamoArchivoController::class, 'devolver'])->name('prestamos.devolver');
 Route::get('/ubicaciones/estante/{estante}', [UbicacionController::class, 'showEstante'])
     ->name('ubicaciones.show_estante');
+Route::get('/ubicaciones/{id}/detalle', [UbicacionController::class, 'showRegistro'])
+     ->name('ubicaciones.show_registro');
+
 Route::get('/ubicaciones/ver-estante/{estante}', [UbicacionController::class, 'showEstante'])
     ->name('ubicaciones.ver_estante');
 Route::delete('/prestamos/{prestamo}', [PrestamoArchivoController::class, 'destroy'])->name('prestamos.destroy');
+Route::get('/prestamos/{financiera}/create', [PrestamoArchivoController::class, 'create'])
+    ->name('prestamos.create');
