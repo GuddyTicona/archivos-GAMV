@@ -78,9 +78,9 @@
                             </div>
                             @if($registro->documento_adjunto)
                             <div class="col-12">
-                                <a href="{{ asset('storage/' . $registro->documento_adjunto) }}" target="_blank" class="btn btn-outline-primary w-100">
+                                <!--<a href="{{ asset('storage/' . $registro->documento_adjunto) }}" target="_blank" class="btn btn-outline-primary w-100">
                                     <i class="bi bi-file-earmark-text"></i> Ver Documento
-                                </a>
+                                </a>-->
                             </div>
                             @endif
                         </div>

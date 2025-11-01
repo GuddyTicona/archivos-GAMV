@@ -61,7 +61,8 @@
                                     <td>{{ $archivo->fecha_registro }}</td>
                                     <td>{{ $archivo->unidad->nombre_unidad }}</td>
                                     <td>{{ $archivo->estado }}</td>
-                                    <td>{{ $archivo->Categorias->nombre_categoria }}</td>
+                                  <td>{{ optional($archivo->Categorias)->nombre_categoria }}</td>
+
                                     <td>
                                         @if ($archivo->documento_adjunto)
                                         <a href="{{ asset('storage/' . $archivo->documento_adjunto) }}"

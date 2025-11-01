@@ -98,13 +98,18 @@
         Acta Nº: {{ $actaNumero ?? 'N/A' }} | Fecha: {{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }}
     </div>
 
-
     {{-- TABLA DE TODOS LOS PREVENTIVOS --}}
     <div class="section">
-        <div class="section-title">Preventivos de Todos los Registros</div>
+        <div class="section-title">Registros despacho</div>
         @if($todosPreventivos->isEmpty())
         <div class="no-records">No hay preventivos registrados para esta área.</div>
         @else
+
+        @php
+            $prevHoja = null;
+            $prevFoja = null;
+        @endphp
+
         <table class="table">
             <thead>
                 <tr>
@@ -113,19 +118,25 @@
                     <th>N° Preventivo</th>
                     <th>Empresa</th>
                     <th>Descripción Gasto</th>
-
                     <th>Total Pago (Bs)</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($todosPreventivos as $preventivo)
+
+                @php
+                    $mostrarHoja = $preventivo->numero_hoja_ruta != $prevHoja;
+                    $mostrarFoja = $preventivo->numero_foja != $prevFoja;
+                    $prevHoja = $preventivo->numero_hoja_ruta;
+                    $prevFoja = $preventivo->numero_foja;
+                @endphp
+
                 <tr>
-                    <td>{{ $preventivo->numero_hoja_ruta }}</td>
-                    <td>{{ $preventivo->numero_foja }}</td>
+                    <td>{{ $mostrarHoja ? $preventivo->numero_hoja_ruta : '' }}</td>
+                    <td>{{ $mostrarFoja ? $preventivo->numero_foja : '' }}</td>
                     <td>{{ $preventivo->numero_preventivo }}</td>
                     <td>{{ $preventivo->empresa }}</td>
                     <td>{{ $preventivo->descripcion_gasto }}</td>
-
                     <td style="text-align:right">{{ number_format($preventivo->total_pago, 2, ',', '.') }}</td>
                 </tr>
                 @endforeach
@@ -138,17 +149,6 @@
         </table>
         @endif
     </div>
-
-    <!-- {{-- SEGUIMIENTO ADMINISTRATIVO --}}
-    <div class="section">
-        <div class="section-title">Seguimiento Administrativo</div>
-        <table class="table">
-            <tr>
-                <td><strong>Estado Administrativo</strong><br>{{ ucfirst($areaDespacho->estado_administrativo ?? '—') }}</td>
-                <td><strong>Última Actualización</strong><br>{{ $areaDespacho->updated_at ? $areaDespacho->updated_at->timezone('America/La_Paz')->format('d/m/Y H:i') : '—' }}</td>
-            </tr>
-        </table>
-    </div>-->
 
     {{-- FIRMAS --}}
     <table class="signatures">
@@ -169,5 +169,4 @@
     </table>
 
 </body>
-
 </html>

@@ -276,3 +276,10 @@ Route::get('/ubicaciones/ver-estante/{estante}', [UbicacionController::class, 's
 Route::delete('/prestamos/{prestamo}', [PrestamoArchivoController::class, 'destroy'])->name('prestamos.destroy');
 Route::get('/prestamos/{financiera}/create', [PrestamoArchivoController::class, 'create'])
     ->name('prestamos.create');
+
+
+//vista principal
+Route::get('financiera/smaf', [AdminController::class, 'smaf'])->name('financiera.smaf');
+Route::get('financiera/despacho', [AdminController::class, 'despacho'])->name('financiera.despacho');
+Route::get('financiera/tesoreria', [AdminController::class, 'tesoreria'])->name('financiera.tesoreria');
+Route::get('financiera/archivos', [AdminController::class, 'archivos'])->name('financiera.archivos');

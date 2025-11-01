@@ -92,10 +92,10 @@
                             <input type="text" class="form-control" value="{{ $registro->numero_compromiso }}" readonly>
 
                             @if($registro->documento_adjunto)
-                            <a href="{{ asset('storage/' . $registro->documento_adjunto) }}" target="_blank"
+                           <!-- <a href="{{ asset('storage/' . $registro->documento_adjunto) }}" target="_blank"
                                 class="btn btn-outline-primary w-100 mt-2">
                                 <i class="bi bi-file-earmark-text"></i> Ver Documento
-                            </a>
+                            </a>-->
                             @endif
                         </div>
                     </div>

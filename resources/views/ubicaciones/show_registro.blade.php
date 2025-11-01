@@ -45,7 +45,7 @@
                 <div class="col-12 mt-3">
                     <label class="form-label fw-bold">Documento Adjunto</label>
                     @if($financiera->documento_adjunto)
-                        <div><a href="{{ asset('storage/' . $financiera->documento_adjunto) }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver / Descargar</a></div>
+                        <div><a href="{{ asset('storage/' . $financiera->documento_adjunto) }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver documento</a></div>
                     @else
                         <span class="text-muted">No hay documento adjunto</span>
                     @endif

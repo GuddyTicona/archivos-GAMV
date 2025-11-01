@@ -11,9 +11,10 @@ class PrestamoArchivoController extends Controller
     // Mostrar todos los préstamos
     public function index()
     {
-        $prestamos = PrestamoArchivo::with('financiera')->latest()->get();
+        $prestamos = PrestamoArchivo::with('financiera')->latest()->paginate(10);
         return view('prestamos.index', compact('prestamos'));
     }
+
        public function create(Financiera $financiera)
     {
         return view('prestamos.create', compact('financiera'));
@@ -40,8 +41,11 @@ class PrestamoArchivoController extends Controller
             'observaciones'
         ));
 
-        return redirect()->back()->with('success', 'Préstamo registrado correctamente.');
+        return redirect()
+            ->route('ubicaciones.show_estante', Financiera::find($request->financiera_id)->ubicacion->estante)
+            ->with('success', 'Préstamo registrado correctamente.');
     }
+
 
     // Marcar un archivo como devuelto
     public function devolver(PrestamoArchivo $prestamo)

@@ -2,17 +2,16 @@
 
 @section('content')
 <div class="container py-4">
-    
 
     <div class="table-responsive shadow-sm rounded bg-white p-3">
         <h4 class="fw-bold text-center text-secondary mb-4">Listado de Préstamos de Archivos</h4>
-        <table class="table  align-middle text-center">
+        <table class="table align-middle text-center">
             <thead class="table-dark">
                 <tr>
                     <th>Nro</th>
                     <th>Archivo</th>
                     <th>Solicitante</th>
-                    <th>Cargo </th>
+                    <th>Cargo</th>
                     <th>Motivo</th>
                     <th>Observaciones</th>
                     <th>Fecha Préstamo</th>
@@ -22,13 +21,14 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($prestamos as $index => $prestamo)
+                @forelse($prestamos as $prestamo)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
+                    {{-- Número consecutivo considerando la paginación --}}
+                    <td>{{ $loop->iteration + ($prestamos->currentPage() - 1) * $prestamos->perPage() }}</td>
                     <td>{{ $prestamo->financiera->codigo }}</td>
                     <td>{{ $prestamo->solicitante }}</td>
                     <td>{{ $prestamo->cargo_departamento ?? '-' }}</td>
-                    <td>{{ $prestamo->motivo ?? '-' }}</td>
+                    <td>{{ $prestamo->motivo_prestamo ?? '-' }}</td>
                     <td>{{ $prestamo->observaciones ?? '-' }}</td>
                     <td>{{ $prestamo->fecha_prestamo }}</td>
                     <td>{{ $prestamo->fecha_devolucion ?? '-' }}</td>
@@ -47,17 +47,18 @@
                                 @csrf
                                 @method('PATCH')
                                 <button class="btn btn-sm btn-primary" title="Marcar como devuelto">
-                                    <i class="bi bi-box-arrow-in-down"></i> Devolver
+                                   Devolver
                                 </button>
                             </form>
                             @endif
+                           
 
                             {{-- Botón Eliminar --}}
                             <form action="{{ route('prestamos.destroy', $prestamo->id) }}" method="POST" onsubmit="return confirm('¿Seguro que quieres eliminar este préstamo?')">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-sm btn-danger" title="Eliminar préstamo">
-                                    <i class="bi bi-trash"></i> Eliminar
+                                  Eliminar
                                 </button>
                             </form>
                         </div>
@@ -70,8 +71,11 @@
                 @endforelse
             </tbody>
         </table>
+
+        {{-- Links de paginación --}}
+        <div class="d-flex justify-content-center mt-3">
+            {{ $prestamos->links() }}
+        </div>
     </div>
 </div>
-
-
 @endsection
