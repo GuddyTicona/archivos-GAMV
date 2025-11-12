@@ -59,7 +59,7 @@
                                         class="d-inline" onsubmit="return confirm('¿Eliminar este registro?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                        <button class="btn btn-sm btn-outline-danger">Deshabilitar</button>
                                     </form>
                                 </td>
                             </tr>

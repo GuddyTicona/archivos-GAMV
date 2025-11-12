@@ -74,6 +74,10 @@ class Archivo extends Model
      */
   
 
-   
+    public function prestamos()
+    {
+        return $this->hasMany(PrestamoArchivocentral::class, 'archivo_id');
+    }
+
     
 }

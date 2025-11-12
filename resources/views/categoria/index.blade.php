@@ -42,7 +42,7 @@
                                     <th>Nombre Categoria</th>
                                     <th>Descripcion</th>
                                     <th>Acciones</th>
-                                    
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -53,80 +53,87 @@
                                     <td>{{ $categoria->nombre_categoria }}</td>
                                     <td>{{ $categoria->descripcion }}</td>
 
-                                    <td>
-                                        <form action="{{ route('categorias.destroy', $categoria->id) }}" method="POST">
-                                            <a class="btn btn-sm btn-primary "
-                                                href="{{ route('categorias.show', $categoria->id) }}"><i
-                                                    class="fa fa-fw fa-eye"></i></a>
-                                            <a class="btn btn-sm btn-success"
-                                                href="{{ route('categorias.edit', $categoria->id) }}"><i
-                                                    class="fa fa-fw fa-edit"></i></a>
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i
-                                                    class="fa fa-fw fa-trash"></i></button>
-                                        </form>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group" aria-label="Acciones">
+                                            <a href="{{ route('categorias.show', $categoria->id) }}"
+                                                class="btn btn-sm btn-outline-primary">
+                                                Ver detalles
+                                            </a>
+                                            <a href="{{ route('categorias.edit', $categoria->id) }}"
+                                                class="btn btn-sm btn-outline-success">
+                                                Editar
+                                            </a>
+                                            <form action="{{ route('categorias.destroy', $categoria->id) }}"
+                                                method="POST" class="d-inline"
+                                                onsubmit="return confirm('¿Seguro que deseas deshabilitar esta categoría?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    Deshabilitar
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
+
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                         <script>
-                    $(function() {
-                        $("#example1").DataTable({
-                            "pageLength": 5,
-                            "language": {
-                                "emptyTable": "No hay informacion",
-                                "info": "Mostrando _START_ a _END_ de _TOTAL categorias",
-                                "infoEmpty": "Mostrando 0 a 0 de 0 categorias",
-                                "infoFiltered": "(Filtrado de _MAX_ total categorias)",
-                                "infoPostFix": "",
-                                "thousands": ",",
-                                "lengthMenu": "Mostrar _MENU_ _categorias",
-                                "loadingRecords": "Cargando...",
-                                "processing": "Procesando...",
-                                "search": "Buscador:",
-                                "zeroRecords": "Sin resultados encontrados",
-                                "paginate": {
-                                    "first": "Primero",
-                                    "last": "Ultimo",
-                                    "next": "Siguiente",
-                                    "previous": "Anterior"
-                                }
-                            },
-                            "responsive": true,
-                            "lengthChange": true,
-                            "autoWidth": false,
-                            buttons: [{
-                                    extend: 'collection',
-                                    text: 'Reportes',
-                                    orientation: 'landscape',
-                                    buttons: [{
-                                        text: 'Copiar',
-                                        extend: 'copy',
-                                    }, {
-                                        extend: 'pdf'
-                                    }, {
-                                        extend: 'csv'
-                                    }, {
-                                        extend: 'excel'
-                                    }, {
-                                        text: 'Imprimir',
-                                        extend: 'print'
-                                    }]
+                        $(function() {
+                            $("#example1").DataTable({
+                                "pageLength": 5,
+                                "language": {
+                                    "emptyTable": "No hay informacion",
+                                    "info": "Mostrando _START_ a _END_ de _TOTAL categorias",
+                                    "infoEmpty": "Mostrando 0 a 0 de 0 categorias",
+                                    "infoFiltered": "(Filtrado de _MAX_ total categorias)",
+                                    "infoPostFix": "",
+                                    "thousands": ",",
+                                    "lengthMenu": "Mostrar _MENU_ _categorias",
+                                    "loadingRecords": "Cargando...",
+                                    "processing": "Procesando...",
+                                    "search": "Buscador:",
+                                    "zeroRecords": "Sin resultados encontrados",
+                                    "paginate": {
+                                        "first": "Primero",
+                                        "last": "Ultimo",
+                                        "next": "Siguiente",
+                                        "previous": "Anterior"
+                                    }
                                 },
-                                {
-                                    extend: 'colvis',
-                                    text: 'Visor de columnas',
-                                    collectionLayout: 'fixed three-column'
-                                }
-                            ],
+                                "responsive": true,
+                                "lengthChange": true,
+                                "autoWidth": false,
+                                buttons: [{
+                                        extend: 'collection',
+                                        text: 'Reportes',
+                                        orientation: 'landscape',
+                                        buttons: [{
+                                            text: 'Copiar',
+                                            extend: 'copy',
+                                        }, {
+                                            extend: 'pdf'
+                                        }, {
+                                            extend: 'csv'
+                                        }, {
+                                            extend: 'excel'
+                                        }, {
+                                            text: 'Imprimir',
+                                            extend: 'print'
+                                        }]
+                                    },
+                                    {
+                                        extend: 'colvis',
+                                        text: 'Visor de columnas',
+                                        collectionLayout: 'fixed three-column'
+                                    }
+                                ],
 
-                        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
-                    });
-                    </script>
+                        });
+                        </script>
                     </div>
                 </div>
             </div>

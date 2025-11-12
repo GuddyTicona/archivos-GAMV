@@ -44,9 +44,9 @@
                                 <a href="{{ route('areas.show', $area->id) }}" class="btn btn-outline-info btn-sm">
                                     <i class="fas fa-folder-open"></i> Ver registros 
                                 </a>
-                                <a href="{{ route('areas.generarReporte', $area->id) }}" class="btn btn-outline-dark btn-sm">
+                                <!--<a href="{{ route('areas.generarReporte', $area->id) }}" class="btn btn-outline-dark btn-sm">
                                     <i class="fa fa-file-pdf"></i> Generar Reporte
-                                </a>
+                                </a>-->
 
                                 <!-- <form action="{{ route('areas.destroy', $area->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('¿Está seguro de eliminar esta área?')">
                                         @csrf

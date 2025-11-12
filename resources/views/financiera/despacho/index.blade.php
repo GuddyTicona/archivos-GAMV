@@ -87,8 +87,8 @@
                                         </form>
                                     </td>
                                     <td>
-                                        <a href="{{ route('financieras.show', $item->id) }}" class="btn btn-sm btn-outline-primary"><i class="fa fa-fw fa-eye"></i></a>
-                                        <a href="{{ route('despacho.financieras.edit', $item->id) }}" class="btn btn-sm btn-outline-success"><i class="fa fa-fw fa-edit"></i></a>
+                                        <a href="{{ route('financieras.show', $item->id) }}" class="btn btn-sm btn-outline-primary">Ver detalles</a>
+                                        <a href="{{ route('despacho.financieras.edit', $item->id) }}" class="btn btn-sm btn-outline-success">Completar registro</a>
                                         <form action="{{ route('despacho.financieras.enviar', $item->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('PUT')

@@ -3,113 +3,179 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
 
 class FileAssistantController extends Controller
 {
-    public function index()
+    public function welcome()
     {
-        return view('assistant');
-    }
-
-    private function normalizeText($text)
-    {
-        $text = strtolower(trim($text));
-        $text = str_replace(
-            ['á', 'é', 'í', 'ó', 'ú', 'ü', 'ñ'],
-            ['a', 'e', 'i', 'o', 'u', 'u', 'n'],
-            $text
-        );
-        $text = preg_replace('/[^a-z0-9\s]/', '', $text);
-        return $text;
+        $respuesta = '
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <p><strong>👋 ¡Hola!</strong> Bienvenido/a al <strong>Sistema de Gestión de Archivos Virtual (GAMV)</strong>.</p>
+            <p>Puedes escribir el nombre, descripción o fecha de creación de una unidad en lenguaje natural, y te mostraré la información relacionada.</p>
+            <p>También puedo guiarte sobre cómo registrar una nueva unidad si no existe.</p>
+        </div>';
+        return response()->json(['reply' => $respuesta]);
     }
 
     public function handleMessage(Request $request)
     {
-        $message = $this->normalizeText($request->input('message'));
+        $message = trim($request->input('message', ''));
+        if (empty($message)) return response()->json(['reply' => 'Por favor, escribe un mensaje.']);
 
-        // 1️⃣ Patrones predefinidos
-        $patterns = [
-            ['pattern' => '/\b(hola|buenos dias|buenas tardes|buenas noches|que tal|hey)\b/', 
-             'reply' => '¡Hola! Soy tu asistente del sistema de archivos. ¿Cómo puedo ayudarte?'],
-            ['pattern' => '/\b(como|donde)?\b.*(buscar|encuentro|localizo).*\b(archivo|documento)\b/', 
-             'reply' => 'En el listado de archivos puedes buscar por nombre, fecha o tipo de archivo utilizando la barra de búsqueda.'],
-            ['pattern' => '/\b(como|donde|a donde)?\b.*\b(agrego|anado|añadir|subo|registro|creo).*\b(documento|archivo|archivos)?\b/', 
-             'reply' => 'Ve a la sección de "Archivos", llena el formulario con los datos requeridos y haz clic en guardar.'],
-            ['pattern' => '/\b(ver|mostrar|listar|consultar)\b/', 
-             'reply' => 'Puedes ir a la sección "Mis Archivos" donde verás la lista completa de documentos registrados.'],
-            ['pattern' => '/\b(unidades|direcciones|oficinas|dependencias)\b/', 
-             'reply' => "Las unidades disponibles son: SMAF, Tesorería, Despacho, Archivos, Finanzas, Jurídica, Recursos Humanos, Educación, Salud, Infraestructura, Medio Ambiente."]
-        ];
-
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern['pattern'], $message)) {
-                return response()->json(['reply' => $pattern['reply']]);
-            }
+        if (preg_match('/\b(hola|buenas|inicio|ayuda|empezar)\b/i', $message)) {
+            return $this->welcome();
         }
 
-        // 2️⃣ Si no coincide, intentar con DeepSeek
-        $reply = $this->callDeepSeek($message);
-
-        // 3️⃣ Si DeepSeek falla o no responde, usar modo simulado
-        if (str_contains($reply, 'Error al conectar con DeepSeek') || str_contains($reply, 'Insufficient Balance')) {
-            $reply = $this->simulateResponse($message);
+        if (preg_match('/\blistar unidades\b/i', $message)) {
+            return response()->json(['reply' => $this->listarUnidades()]);
         }
 
-        return response()->json(['reply' => $reply]);
+        // Procesar lenguaje natural para buscar unidades
+        $criterios = $this->interpretarMensajeIA($message);
+
+        $unidades = $this->buscarUnidadesDB($criterios);
+
+        if ($unidades->isEmpty()) {
+            // No hay coincidencias → guiar con IA
+            $iaReply = $this->askDeepSeek($message);
+            return response()->json(['reply' => $iaReply]);
+        }
+
+        // Mostrar resultados reales
+        return response()->json(['reply' => $this->formatearUnidades($unidades, '📋 Unidades encontradas')]);
     }
 
-    private function callDeepSeek($message)
+    private function listarUnidades()
     {
-        $apiKey = env('DEEPSEEK_API_KEY');
-        $url = 'https://api.deepseek.com/chat/completions';
+        $unidades = DB::table('unidades')->limit(10)->get();
+        if ($unidades->isEmpty()) return '<p>No hay unidades registradas.</p>';
+        return $this->formatearUnidades($unidades, '📋 Unidades registradas');
+    }
 
+    // --- Interpretar mensaje con IA y retornar criterios de búsqueda ---
+    private function interpretarMensajeIA($mensaje)
+    {
+        $apiKey = env('OPENAI_API_KEY');
+        if (!$apiKey) return [];
+
+        $prompt = "
+Eres un asistente que interpreta consultas en lenguaje natural para buscar en la tabla 'unidades' (campos: nombre_unidad, descripcion, fecha_creacion). 
+Recibe un mensaje del usuario y devuelve un JSON con los criterios de búsqueda para cada campo.
+Ejemplo de salida: {\"nombre_unidad\":\"Educacion\", \"descripcion\":\"archivos\", \"fecha_creacion\":\"2025-07\"}
+Usuario mensaje: '{$mensaje}'
+";
+
+        $client = new Client();
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-                'Content-Type' => 'application/json',
-            ])
-            ->withOptions([
-                // ⚠️ Cambia a false si aún te da error SSL en desarrollo local
-                'verify' => false,
-            ])
-            ->post($url, [
-                'model' => 'deepseek-chat',
-                'messages' => [
-                    ['role' => 'system', 'content' => 'Eres un asistente útil especializado en gestión de archivos financieros.'],
-                    ['role' => 'user', 'content' => $message],
+            $response = $client->post('https://openrouter.ai/api/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => "Bearer {$apiKey}",
+                    'Content-Type' => 'application/json'
                 ],
-                'stream' => false,
+                'json' => [
+                    'model' => 'deepseek/deepseek-chat-v3.1:free',
+                    'messages' => [
+                        ['role' => 'system', 'content' => $prompt],
+                        ['role' => 'user', 'content' => $mensaje]
+                    ],
+                    'temperature' => 0.3
+                ],
+                'timeout' => 60
             ]);
 
-            $data = $response->json();
-
-            if (!isset($data['choices'][0]['message']['content'])) {
-                return 'DeepSeek API respondió pero no tiene contenido válido: ' . json_encode($data);
-            }
-
-            return $data['choices'][0]['message']['content'];
+            $result = json_decode($response->getBody()->getContents(), true);
+            $text = $result['choices'][0]['message']['content'] ?? '{}';
+            $json = json_decode($text, true);
+            return is_array($json) ? $json : [];
 
         } catch (\Exception $e) {
-            return 'Error al conectar con DeepSeek: ' . $e->getMessage();
+            Log::error('Error IA interpretación: ' . $e->getMessage());
+            return [];
         }
     }
 
-    private function simulateResponse($message)
+    // --- Buscar unidades en DB según criterios de IA ---
+    private function buscarUnidadesDB(array $criterios)
     {
-        $simulated = [
-            'hola' => '¡Hola! Parece que la IA remota no está disponible, pero puedo seguir ayudándote localmente.',
-            'buscar' => 'Puedes buscar tus archivos por nombre o tipo en la sección de gestión.',
-            'subir' => 'Para subir un archivo, ve al menú principal y selecciona “Agregar nuevo documento”.',
-            'ver' => 'Puedes visualizar todos tus archivos en la pestaña “Mis Archivos”.',
-        ];
+        $query = DB::table('unidades');
 
-        foreach ($simulated as $key => $reply) {
-            if (str_contains($message, $key)) {
-                return $reply . ' (respuesta simulada)';
-            }
+        if (!empty($criterios['nombre_unidad'])) {
+            $query->where('nombre_unidad', 'like', "%{$criterios['nombre_unidad']}%");
+        }
+        if (!empty($criterios['descripcion'])) {
+            $query->where('descripcion', 'like', "%{$criterios['descripcion']}%");
+        }
+        if (!empty($criterios['fecha_creacion'])) {
+            $query->where('fecha_creacion', 'like', "%{$criterios['fecha_creacion']}%");
         }
 
-        return 'No tengo conexión con DeepSeek, pero tu mensaje fue recibido correctamente. (modo simulado)';
+        return $query->limit(10)->get();
+    }
+
+    private function formatearUnidades($unidades, $titulo)
+    {
+        $html = "<div style='font-family: Arial, sans-serif; line-height: 1.6;'>";
+        $html .= "<h4>{$titulo}</h4><ol>";
+        foreach ($unidades as $u) {
+            $html .= "<li>
+                <strong>ID:</strong> {$u->id} <br>
+                <strong>Nombre:</strong> {$u->nombre_unidad} <br>
+                <strong>Descripción:</strong> {$u->descripcion} <br>
+                <strong>Fecha creación:</strong> {$u->fecha_creacion}
+            </li><br>";
+        }
+        $html .= "</ol></div>";
+        return $html;
+    }
+
+    private function askDeepSeek(string $message)
+    {
+        $apiKey = env('OPENAI_API_KEY');
+        if (!$apiKey) return '⚠️ Falta configurar la API Key de OpenRouter.';
+
+        $contexto = "
+Eres un asistente del Sistema GAMV. 
+No se encontraron registros en la tabla 'unidades'. Guía cómo crear una unidad y qué campos se necesitan.
+Usuario preguntó: '{$message}'
+";
+
+        $payload = [
+            'model' => 'deepseek/deepseek-chat-v3.1:free',
+            'messages' => [
+                ['role' => 'system', 'content' => $contexto],
+                ['role' => 'user', 'content' => $message]
+            ],
+            'temperature' => 0.7
+        ];
+
+        $client = new Client();
+        try {
+            $response = $client->post('https://openrouter.ai/api/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => "Bearer {$apiKey}",
+                    'Content-Type' => 'application/json'
+                ],
+                'json' => $payload,
+                'timeout' => 60
+            ]);
+
+            $result = json_decode($response->getBody()->getContents(), true);
+            $iaReply = $result['choices'][0]['message']['content'] ?? 'No obtuve respuesta de la IA.';
+
+            $iaReplyClean = preg_replace_callback('/<[^>]*?>/', function ($matches) {
+                $allowed = ['p', 'ol', 'li', 'strong', 'br'];
+                preg_match('/<\/?(\w+)/', $matches[0], $tag);
+                return isset($tag[1]) && in_array($tag[1], $allowed) ? $matches[0] : '';
+            }, $iaReply);
+
+            return $iaReplyClean;
+
+        } catch (\Exception $e) {
+            Log::error('Error IA guía: ' . $e->getMessage());
+            return '⚠️ No fue posible conectarse con el servidor de IA.';
+        }
     }
 }

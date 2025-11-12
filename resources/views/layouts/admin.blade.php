@@ -311,6 +311,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                         <p>Listado Archivos</p>
                                     </a>
                                 </li>
+                                 <li class="nav-item">
+                                    <a href="{{ route('prestamo_central.index') }}" class="nav-link">
+                                        <i class="bi bi-key"></i>
+                                        <p>Prestamos</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 

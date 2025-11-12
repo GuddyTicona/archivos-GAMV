@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content')
 <div class="content" style="margin-left: 10px">
-    <h1>Listado de Unidades</h1>
+
     @if($message = Session::get('mensaje'))
     <script>
     Swal.fire({
@@ -44,22 +44,28 @@
                                 <td>{{$unidad -> nombre_unidad}}</td>
                                 <td>{{$unidad -> descripcion}}</td>
                                 <td>{{$unidad -> fecha_creacion}}</td>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="Basic example">
-                                        <a href="{{url('unidades',$unidad->id)}}" type="button" class="btn btn-info"><i
-                                                class="bi bi-eye-fill"></i></a>
-                                        <a href="{{route('unidades.edit',$unidad->id)}}" type="button"
-                                            class="btn btn-success"><i class="bi bi-pencil-square"></i></a>
-                                        <form action="{{url('unidades',$unidad->id)}}" method="post">
+                                <td class="text-center">
+                                    <div class="btn-group" role="group" aria-label="Acciones">
+                                        <a href="{{ url('unidades', $unidad->id) }}" class="btn btn-sm btn-outline-info"
+                                            title="Ver detalles">
+                                            ver detalles
+                                        </a>
+                                        <a href="{{ route('unidades.edit', $unidad->id) }}"
+                                            class="btn btn-sm btn-outline-success" title="Editar">
+                                            Editar
+                                        </a>
+                                        <form action="{{ url('unidades', $unidad->id) }}" method="POST"
+                                            onsubmit="return confirm('¿Deseas deshabilitar esta unidad?')">
                                             @csrf
-                                            {{method_field('DELETE')}}
-                                            <button type="submit" class="btn btn-danger">
-                                                <i class="bi bi-trash-fill"></i>
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                title="Deshabilitar">
+                                                Deshabilitar
                                             </button>
-
                                         </form>
                                     </div>
                                 </td>
+
                             </tr>
                             @endforeach
 

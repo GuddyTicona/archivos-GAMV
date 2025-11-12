@@ -16,6 +16,7 @@ use App\Http\Controllers\AreaDespachoController;
 use App\Http\Controllers\AreaArchivoController;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\PrestamoArchivoController;
+use App\Http\Controllers\PrestamoArchivocentralController;
 
 // Autenticación
 Auth::routes(['register' => true]);
@@ -55,6 +56,7 @@ Route::post('/ubicaciones/asignar/{archivo}', [UbicacionController::class, 'asig
 // Asistente virtual
 Route::get('/assistant', [FileAssistantController::class, 'index']);
 Route::post('/assistant/message', [FileAssistantController::class, 'handleMessage']);
+Route::post('/chatbot', [FileAssistantController::class, 'handleMessage'])->name('chatbot');
 
 // Preventivos
 Route::get('/preventivos', [App\Http\Controllers\PreventivoController::class, 'index'])->name('preventivos.index');
@@ -283,3 +285,40 @@ Route::get('financiera/smaf', [AdminController::class, 'smaf'])->name('financier
 Route::get('financiera/despacho', [AdminController::class, 'despacho'])->name('financiera.despacho');
 Route::get('financiera/tesoreria', [AdminController::class, 'tesoreria'])->name('financiera.tesoreria');
 Route::get('financiera/archivos', [AdminController::class, 'archivos'])->name('financiera.archivos');
+
+
+//prestamos de archivo central viacha 
+Route::resource('prestamo_central', PrestamoArchivocentralController::class);
+
+
+// Listado de préstamos
+Route::get('prestamo_central', [PrestamoArchivocentralController::class, 'index'])
+    ->name('prestamo_central.index');
+
+// Crear préstamo (opcional archivo_id para precargar)
+Route::get('prestamo_central/create/{archivo_id?}', [PrestamoArchivocentralController::class, 'create'])
+    ->name('prestamo_central.create');
+
+// Guardar préstamo
+Route::post('prestamo_central', [PrestamoArchivocentralController::class, 'store'])
+    ->name('prestamo_central.store');
+
+// Editar préstamo
+Route::get('prestamo_central/{prestamo}/edit', [PrestamoArchivocentralController::class, 'edit'])
+    ->name('prestamo_central.edit');
+
+// Actualizar préstamo
+Route::put('prestamo_central/{prestamo}', [PrestamoArchivocentralController::class, 'update'])
+    ->name('prestamo_central.update');
+
+// Mostrar detalle de préstamo
+Route::get('prestamo_central/{prestamo}', [PrestamoArchivocentralController::class, 'show'])
+    ->name('prestamo_central.show');
+
+// Eliminar préstamo
+Route::delete('prestamo_central/{prestamo}', [PrestamoArchivocentralController::class, 'destroy'])
+    ->name('prestamo_central.destroy');
+
+// Marcar préstamo como devuelto
+Route::patch('prestamo_central/{prestamo}/devolver', [PrestamoArchivocentralController::class, 'devolver'])
+    ->name('prestamo_central.devolver');
