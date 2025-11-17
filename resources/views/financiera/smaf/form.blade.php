@@ -38,7 +38,7 @@
                 </select>
             </div>
 
-            <div class="col-md-6 mb-3">
+            <!--div class="col-md-6 mb-3">
                 <label for="estado_documento">Estado del Documento</label>
                 <select name="estado_documento" class="form-control" required>
                     <option value="">-- Selecciona estado --</option>
@@ -55,7 +55,7 @@
                         Rechazado
                     </option>
                 </select>
-            </div>
+            </div>-->
         </div>
 
     </div>
@@ -135,17 +135,17 @@
 </div>
 
 <!-- Botones de acción -->
-<!-- Botones de acción -->
 <div class="card mb-4">
     <div class="card-footer text-end">
         @if(isset($financiera) && $financiera->exists)
             <button type="submit" class="btn btn-primary">Actualizar</button>
         @else
-            <button type="submit" class="btn btn-primary">Guardar y Enviar</button>
+             <button type="submit" name="accion" value="guardar" class="btn btn-success px-4">Guardar</button>
         @endif
         <a href="{{ route('smaf.financieras.index') }}" class="btn btn-secondary">Cancelar</a>
     </div>
 </div>
+
 
 
 <!-- Script JS para agregar preventivo -->

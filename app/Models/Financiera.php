@@ -47,7 +47,7 @@ protected $fillable = [
     'area_despacho_id',
     'area_archivo_id',
     'area_id',
-    'estado_documento',
+   'enviado_a_despacho',
     'tipo_documento',
     'tipo_ejecucion',
     'fecha_documento',
@@ -66,7 +66,7 @@ protected $fillable = [
     'codigo',
     'enviado_archivo',
     'ubicacion_id',
-    
+    'estado_actual',
 ];
 
 
@@ -125,4 +125,12 @@ protected $fillable = [
         $ultimo = $this->ultimoPrestamo;
         return !$ultimo || $ultimo->fecha_devolucion != null;
     }
+
+   // En App\Models\Financiera.php
+public function notificaciones()
+{
+    return $this->hasMany(Notificacion::class, 'financiera_id');
+}
+
+
 }

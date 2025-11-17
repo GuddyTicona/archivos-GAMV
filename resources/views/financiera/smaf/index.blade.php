@@ -21,14 +21,14 @@
                                 <th>Entidad</th>
                                 <th>Unidad</th>
                                 <th>Área</th>
-                                <th>Estado Documento</th>
+                   
                                 <th>Estado Administrativo</th>
                                 <th>Fecha Documento</th>
                                 <th>N° Preventivo</th>
                                 <th>Total Pago (Bs)</th>
                                 <th>Descripción</th>
                                 <th>Empresa</th>
-                             
+
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -41,20 +41,38 @@
                                 <td>{{ $item->entidad }}</td>
                                 <td>{{ $item->unidad->nombre_unidad ?? '-' }}</td>
                                 <td>{{ $item->area->nombre ?? '-' }}</td>
-                                <td>{{ ucfirst($item->estado_documento) }}</td>
+                        
                                 <td>{{ ucfirst($item->estado_administrativo) }}</td>
                                 <td>{{ $item->fecha_documento }}</td>
                                 <td>{{ $preventivo->numero_preventivo }}</td>
                                 <td class="text-end">{{ number_format($preventivo->total_pago, 3) }}</td>
                                 <td>{{ $preventivo->descripcion_gasto }}</td>
                                 <td>{{ $preventivo->empresa }}</td>
-                                
 
+
+                                {{-- Acciones --}}
                                 <td>
                                     <a href="{{ route('financieras.show', $item->id) }}"
                                         class="btn btn-sm btn-outline-primary">Ver</a>
+
                                     <a href="{{ route('smaf.financieras.edit', $item->id) }}"
                                         class="btn btn-sm btn-outline-success">Editar</a>
+
+                                    {{-- Solo mostrar botón si NO se ha enviado --}}
+                                    @if(!$item->enviado_a_despacho)
+                                    <form action="{{ route('smaf.financieras.enviar', $item->id) }}" method="POST"
+                                        class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success"
+                                            onclick="return confirm('¿Enviar esta financiera?')">
+                                            Enviar
+                                        </button>
+                                    </form>
+                                    @else
+                                    <span class="badge bg-secondary">Enviado</span>
+                                    @endif
+
+
                                     <form action="{{ route('smaf.financieras.destroy', $item->id) }}" method="POST"
                                         class="d-inline" onsubmit="return confirm('¿Eliminar este registro?')">
                                         @csrf
@@ -62,6 +80,8 @@
                                         <button class="btn btn-sm btn-outline-danger">Deshabilitar</button>
                                     </form>
                                 </td>
+
+
                             </tr>
                             @endforeach
                             @else
@@ -93,76 +113,97 @@
     </div>
 
 
-<script>
-$(function() {
-    let fechaHoy = new Date().toLocaleDateString('es-BO', { year: 'numeric', month: '2-digit', day: '2-digit' });
-    let contadorActa = 0; // Comienza en 0
+    <script>
+    $(function() {
+        let fechaHoy = new Date().toLocaleDateString('es-BO', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+        let contadorActa = 0; // Comienza en 0
 
-    function generarActaNumero() {
-        contadorActa++;
-        return contadorActa;
-    }
+        function generarActaNumero() {
+            contadorActa++;
+            return contadorActa;
+        }
 
-    let table = $('#example1').DataTable({
-        pageLength: 10,
-        responsive: true,
-        lengthChange: true,
-        autoWidth: false,
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
-        },
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'collection',
-                text: 'Reportes',
-                buttons: [
-                    {
-                        extend: 'pdfHtml5',
-                        text: 'Exportar a PDF',
-                        orientation: 'portrait',
-                        pageSize: 'LEGAL',
-                        title: 'SECRETARÍA MUNICIPAL ADMINISTRATIVA FINANCIERA\nDIRECCIÓN FINANCIERA',
-                        messageTop: function() {
-                            return 'ACTA DE ENTREGA - RECEPCIÓN DE DOCUMENTO...\nFECHA: ' + fechaHoy + '     ACTA Nº ' + generarActaNumero();
-                        },
-                        messageBottom: '\n\n\n\nENTREGUÉ CONFORME ____________________________        RECIBÍ CONFORME ____________________________',
-                        exportOptions: { columns: ':not(:last-child)' },
-                        customize: function(doc) {
-                            doc.styles.title = { fontSize: 12, bold: true, alignment: 'center' };
-                            doc.styles.message = { fontSize: 10, alignment: 'center' };
-                            doc.styles.tableHeader = { alignment: 'center', bold: true };
-                            doc.defaultStyle.fontSize = 8;
-                        }
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        text: 'Exportar a Excel',
-                        title: 'SECRETARÍA MUNICIPAL ADMINISTRATIVA FINANCIERA - DIRECCIÓN FINANCIERA',
-                        messageTop: function() {
-                            return 'ACTA DE ENTREGA - RECEPCIÓN DE DOCUMENTO...\nFECHA: ' + fechaHoy + '     ACTA Nº ' + generarActaNumero();
-                        },
-                        messageBottom: '\n\n\n\nENTREGUÉ CONFORME ____________________________        RECIBÍ CONFORME ____________________________',
-                        exportOptions: { columns: ':not(:last-child)' }
-                    },
-                    {
-                        extend: 'print',
-                        text: 'Imprimir',
-                        title: 'SECRETARÍA MUNICIPAL ADMINISTRATIVA FINANCIERA\nDIRECCIÓN FINANCIERA',
-                        messageTop: function() {
-                            return 'ACTA DE ENTREGA - RECEPCIÓN DE DOCUMENTO...\nFECHA: ' + fechaHoy + '     ACTA Nº ' + generarActaNumero();
-                        },
-                        messageBottom: '\n\n\n\nENTREGUÉ CONFORME ____________________________        RECIBÍ CONFORME ____________________________',
-                        exportOptions: { columns: ':not(:last-child)' }
-                    }
-                ]
+        let table = $('#example1').DataTable({
+            pageLength: 10,
+            responsive: true,
+            lengthChange: true,
+            autoWidth: false,
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
             },
-            'colvis'
-        ]
-    });
+            dom: 'Bfrtip',
+            buttons: [{
+                    extend: 'collection',
+                    text: 'Reportes',
+                    buttons: [{
+                            extend: 'pdfHtml5',
+                            text: 'Exportar a PDF',
+                            orientation: 'portrait',
+                            pageSize: 'LEGAL',
+                            title: 'SECRETARÍA MUNICIPAL ADMINISTRATIVA FINANCIERA\nDIRECCIÓN FINANCIERA',
+                            messageTop: function() {
+                                return 'ACTA DE ENTREGA - RECEPCIÓN DE DOCUMENTO...\nFECHA: ' +
+                                    fechaHoy + '     ACTA Nº ' + generarActaNumero();
+                            },
+                            messageBottom: '\n\n\n\nENTREGUÉ CONFORME ____________________________        RECIBÍ CONFORME ____________________________',
+                            exportOptions: {
+                                columns: ':not(:last-child)'
+                            },
+                            customize: function(doc) {
+                                doc.styles.title = {
+                                    fontSize: 12,
+                                    bold: true,
+                                    alignment: 'center'
+                                };
+                                doc.styles.message = {
+                                    fontSize: 10,
+                                    alignment: 'center'
+                                };
+                                doc.styles.tableHeader = {
+                                    alignment: 'center',
+                                    bold: true
+                                };
+                                doc.defaultStyle.fontSize = 8;
+                            }
+                        },
+                        {
+                            extend: 'excelHtml5',
+                            text: 'Exportar a Excel',
+                            title: 'SECRETARÍA MUNICIPAL ADMINISTRATIVA FINANCIERA - DIRECCIÓN FINANCIERA',
+                            messageTop: function() {
+                                return 'ACTA DE ENTREGA - RECEPCIÓN DE DOCUMENTO...\nFECHA: ' +
+                                    fechaHoy + '     ACTA Nº ' + generarActaNumero();
+                            },
+                            messageBottom: '\n\n\n\nENTREGUÉ CONFORME ____________________________        RECIBÍ CONFORME ____________________________',
+                            exportOptions: {
+                                columns: ':not(:last-child)'
+                            }
+                        },
+                        {
+                            extend: 'print',
+                            text: 'Imprimir',
+                            title: 'SECRETARÍA MUNICIPAL ADMINISTRATIVA FINANCIERA\nDIRECCIÓN FINANCIERA',
+                            messageTop: function() {
+                                return 'ACTA DE ENTREGA - RECEPCIÓN DE DOCUMENTO...\nFECHA: ' +
+                                    fechaHoy + '     ACTA Nº ' + generarActaNumero();
+                            },
+                            messageBottom: '\n\n\n\nENTREGUÉ CONFORME ____________________________        RECIBÍ CONFORME ____________________________',
+                            exportOptions: {
+                                columns: ':not(:last-child)'
+                            }
+                        }
+                    ]
+                },
+                'colvis'
+            ]
+        });
 
-    table.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-});
-</script>
+        table.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+    </script>
 
     @endsection

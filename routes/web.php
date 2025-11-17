@@ -17,7 +17,7 @@ use App\Http\Controllers\AreaArchivoController;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\PrestamoArchivoController;
 use App\Http\Controllers\PrestamoArchivocentralController;
-
+use App\Http\Controllers\NotificacionController;
 // Autenticación
 Auth::routes(['register' => true]);
 
@@ -164,6 +164,7 @@ Route::prefix('smaf/financieras')->name('smaf.financieras.')->middleware('auth')
     Route::delete('{financiera}', [FinancieraController::class, 'destroy'])
         ->middleware('permission:smaf.destroy')
         ->name('destroy');
+  
 });
 
 
@@ -322,3 +323,12 @@ Route::delete('prestamo_central/{prestamo}', [PrestamoArchivocentralController::
 // Marcar préstamo como devuelto
 Route::patch('prestamo_central/{prestamo}/devolver', [PrestamoArchivocentralController::class, 'devolver'])
     ->name('prestamo_central.devolver');
+
+
+
+// Ruta para enviar una financiera desde el index
+Route::post('smaf/financieras/{id}/enviar', [FinancieraController::class, 'enviar'])
+    ->name('smaf.financieras.enviar');
+   
+Route::post('/notificaciones/marcar-leida/{id}', [NotificacionController::class, 'marcarLeida'])
+    ->name('notificaciones.marcar-leida');

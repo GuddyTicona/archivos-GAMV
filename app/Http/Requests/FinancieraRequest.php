@@ -25,7 +25,7 @@ class FinancieraRequest extends FormRequest
 			'entidad' => 'required|string',
 			
             'numero_foja'=>'string',
-			'estado_documento' => 'required',
+			
 			'tipo_documento' => 'required|string',
 			'tipo_ejecucion' => 'required|string',
 			'documento_adjunto' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:2048',

@@ -7,6 +7,7 @@ use App\Models\Unidad;
 use App\Models\Area;
 use App\Models\AreaDespacho;  
 use App\Models\AreaArchivo;  
+use App\Models\Notificacion;
 use Illuminate\Http\Request;
 use App\Http\Requests\FinancieraRequest;
 use Illuminate\Http\RedirectResponse;
@@ -27,7 +28,7 @@ class FinancieraController extends Controller
     }
 
     // CREAR — SMAF
-    public function create(): View
+        public function create(): View
     {
         $financiera = new Financiera();
         $unidades = Unidad::pluck('nombre_unidad', 'id');
@@ -36,30 +37,36 @@ class FinancieraController extends Controller
     }
 
     // GUARDAR — SMAF
-    public function store(FinancieraRequest $request): RedirectResponse
-    {
-        $request->validate([
-            'unidad_id' => 'required|exists:unidades,id',
-            'area_id' => 'required|exists:areas,id',
-            'preventivos.*.numero_preventivo' => 'required|string|max:50',
-            'preventivos.*.total_pago' => 'required|numeric',
-            'numero_foja' => 'nullable|string|max:100',
-        ]);
+  public function store(FinancieraRequest $request): RedirectResponse
+{
+    $request->validate([
+        'unidad_id' => 'required|exists:unidades,id',
+        'area_id' => 'required|exists:areas,id',
+        'preventivos.*.numero_preventivo' => 'required|string|max:50',
+        'preventivos.*.total_pago' => 'required|numeric',
+        'numero_foja' => 'nullable|string|max:100',
+    ]);
 
-        $financiera = new Financiera($request->except('preventivos', 'documento_adjunto'));
-        //fecha de envio para el registro de actas 
-        $financiera->fecha_envio = now();
+    // Crear financiera sin enviar
+    $financiera = new Financiera($request->except('preventivos', 'documento_adjunto', 'fecha_envio'));
+
+    
+    $financiera->save();
+
+    // Guardar documento adjunto si existe
+    if ($request->hasFile('documento_adjunto')) {
+        $financiera->documento_adjunto = $request->file('documento_adjunto')
+            ->store('documentos_adjuntos', 'public');
         $financiera->save();
-
-        if ($request->hasFile('documento_adjunto')) {
-            $financiera->documento_adjunto = $request->file('documento_adjunto')->store('documentos_adjuntos', 'public');
-            $financiera->save();
-        }
-
-        $this->actualizarPreventivos($financiera, $request->preventivos);
-
-        return redirect()->route('financieras.index')->with('mensaje', 'Financiera registrada correctamente.');
     }
+
+    // Guardar preventivos
+    $this->actualizarPreventivos($financiera, $request->preventivos);
+
+    return redirect()->route('smaf.financieras.index')
+        ->with('mensaje', 'Financiera registrada correctamente.');
+}
+
 
     // SHOW
     public function show($id): View
@@ -89,17 +96,58 @@ class FinancieraController extends Controller
         ]);
 
         $financiera->update($request->except('preventivos', 'documento_adjunto'));
-        $financiera->fecha_envio = now();
-         $financiera->save();
+     
+
 
         if ($request->hasFile('documento_adjunto')) {
             $financiera->update(['documento_adjunto' => $request->file('documento_adjunto')->store('documentos_adjuntos', 'public')]);
+               $financiera->save();
         }
 
         $this->actualizarPreventivos($financiera, $request->preventivos);
 
         return redirect()->route('financieras.index')->with('mensaje', 'Datos actualizados correctamente (SMAF).');
     }
+
+      // Enviar registro SMAF a Despacho
+public function enviar($id)
+{
+    $financiera = Financiera::with('preventivos', 'unidad')->findOrFail($id);
+
+    if (!$financiera->enviado_a_despacho) {
+        $financiera->enviado_a_despacho = true;
+        $financiera->save();
+        $preventivo = $financiera->preventivos->first();
+        $numeroPreventivo = $preventivo ? $preventivo->numero_preventivo : 'SIN PREVENTIVO';
+
+        $mensaje = "Se envió una financiera: Entidad: {$financiera->entidad}, Unidad: "
+                 . ($financiera->unidad->nombre_unidad ?? 'N/A')
+                 . ", Preventivo: {$numeroPreventivo}";
+
+        $notificacion = Notificacion::create([
+            'financiera_id' => $financiera->id,
+            'de_area'       => 'SMAF',
+            'para_area'     => 'Despacho',
+            'mensaje'       => $mensaje,
+            'leido'         => false,
+        ]);
+
+        return redirect()
+            ->route('despacho.financieras.index')
+            ->with('nueva_notificacion', [
+                'id'      => $notificacion->id,
+                'de_area' => $notificacion->de_area,
+                'mensaje' => $notificacion->mensaje,
+            ]);
+    }
+
+    return redirect()->back()->with('mensaje', 'Esta financiera ya fue enviada.');
+}
+
+
+
+
+
 
     // EDIT — DESPACHO
     public function editDespacho($id): View
@@ -131,19 +179,42 @@ class FinancieraController extends Controller
             ->with('mensaje', 'Datos guardados correctamente en Despacho.');
     }
 
-        //funcion para enviar los datos que realiza despacho a tesoreria 
+  public function enviarTesoreria($id)
+{
+    $financiera = Financiera::with(['preventivos', 'unidad', 'areaDespacho'])->findOrFail($id);
 
-       // Enviar a Tesorería
-    public function enviarTesoreria($id)
-    {
-        $financiera = Financiera::findOrFail($id);
-        $financiera->enviado_a_tesoreria = true;  // marca que fue enviado
+    if (!$financiera->enviado_a_tesoreria) {
+        $financiera->enviado_a_tesoreria = true;
         $financiera->save();
+        $preventivo = $financiera->preventivos->first();
+        $numeroPreventivo = $preventivo ? $preventivo->numero_preventivo : 'SIN PREVENTIVO';
+
+        $mensaje = "Se envió una financiera a Tesorería: Entidad: {$financiera->entidad}, "
+                 . "Unidad: " . ($financiera->unidad->nombre_unidad ?? 'N/A') . ", "
+                 . "Preventivo: {$numeroPreventivo}, "
+                 . "N° Foja: {$financiera->numero_foja}, "
+                 . "N° Hoja Ruta: {$financiera->numero_hoja_ruta}";
+        $notificacion = Notificacion::create([
+            'financiera_id' => $financiera->id,
+            'de_area'       => 'Despacho',
+            'para_area'     => 'Tesoreria',
+            'mensaje'       => $mensaje,
+            'leido'         => false,
+        ]);
 
         return redirect()
             ->route('tesoreria.financieras.index')
-            ->with('mensaje', 'Documento enviado a Tesorería correctamente.');
+            ->with('nueva_notificacion', [
+                'id'      => $notificacion->id,
+                'de_area' => $notificacion->de_area,
+                'mensaje' => $notificacion->mensaje,
+            ]);
     }
+
+    return redirect()->back()->with('mensaje', 'Esta financiera ya fue enviada a Tesorería.');
+}
+
+
 
 
 
@@ -181,20 +252,26 @@ class FinancieraController extends Controller
     }
 
     // DESPACHO - LISTAR
-    public function indexDespacho(Request $request)
-    {
-        $financieras = Financiera::with(['unidad', 'area', 'preventivos'])
-            ->where(function ($query) {
-                $query->whereIn('estado_administrativo', ['enviado', 'recibido', 'rechazado']);
-            })
-            ->orWhere(function ($query) {
-                $query->where('enviado_a_tesoreria', true);
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate();
+  // DESPACHO - LISTAR
+public function indexDespacho(Request $request)
+{
+    $financieras = Financiera::with(['unidad', 'area', 'preventivos', 'notificaciones'])
+        ->where('enviado_a_despacho', true)
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
 
-        return view('financiera.despacho.index', compact('financieras'));
-    }
+    // Notificaciones no leídas para el icono 🔔
+    $notificaciones = Notificacion::where('para_area', 'Despacho')
+                                  ->where('leido', false)
+                                  ->orderBy('created_at', 'desc')
+                                  ->get();
+
+    return view('financiera.despacho.index', compact('financieras', 'notificaciones'));
+}
+
+
+
+
 
 
     // PDF REPORTE
@@ -242,17 +319,22 @@ class FinancieraController extends Controller
         return back()->with('mensaje', 'Estado de despacho actualizado correctamente.');
     }
 
-
-    // TESORERIA - LISTAR
-    public function indexTesoreria(Request $request): View
-    {
-        $financieras = Financiera::with(['unidad', 'area', 'preventivos'])
+// TESORERIA - LISTAR
+public function indexTesoreria(Request $request): View
+{
+    $financieras = Financiera::with(['unidad', 'area', 'preventivos', 'areaDespacho', 'notificaciones'])
         ->where('enviado_a_tesoreria', true)
         ->orderBy('created_at', 'desc')
         ->paginate();
 
-        return view('financiera.tesoreria.index', compact('financieras'));
-    }
+    // Obtener notificaciones solo para Tesorería
+    $notificaciones = Notificacion::where('para_area', 'Tesoreria')
+                                  ->orderBy('created_at', 'desc')
+                                  ->get();
+
+    return view('financiera.tesoreria.index', compact('financieras', 'notificaciones'));
+}
+
 
 
 
@@ -305,11 +387,11 @@ class FinancieraController extends Controller
     }
 
 // FINANCIERA - Enviar a Archivos
-    // Enviar registro a Archivos
    public function enviarArchivo($id)
 {
-    $financiera = Financiera::findOrFail($id);
+    $financiera = Financiera::with(['preventivos', 'unidad', 'areaDespacho'])->findOrFail($id);
 
+    // Generar código si no existe
     if ($financiera->codigo === null) {
         $anioMes = date('Ym'); 
         $ultimo = Financiera::whereNotNull('codigo')
@@ -324,14 +406,42 @@ class FinancieraController extends Controller
         }
         $financiera->codigo = 'FIN-' . $anioMes . '-' . str_pad($contador, 3, '0', STR_PAD_LEFT);
     }
+
+    // Marcar como enviado
     $financiera->enviado_archivo = 'enviado';
     $financiera->fecha_envio = now();
     $financiera->save();
 
-    return redirect()->back()->with('mensaje', 'Documento enviado a Archivos correctamente.');
+    // Construir lista de preventivos
+    $listaPreventivos = $financiera->preventivos->map(function($p){
+        return "N° Preventivo: {$p->numero_preventivo}, Secuencia: {$p->numero_secuencia}, Beneficiario: {$p->beneficiario}";
+    })->implode(' | ');
+
+    // Crear mensaje de notificación
+    $mensaje = "Se envió una financiera a Archivos: Entidad: {$financiera->entidad}, "
+             . "Unidad: " . ($financiera->unidad->nombre_unidad ?? 'N/A') . ", "
+             . "Preventivos: {$listaPreventivos}, "
+             . "N° Foja: {$financiera->numero_foja}, "
+             . "N° Hoja Ruta: {$financiera->numero_hoja_ruta}";
+
+    // Crear notificación
+    $notificacion = Notificacion::create([
+        'financiera_id' => $financiera->id,
+        'de_area'       => 'Tesoreria',
+        'para_area'     => 'Archivo',
+        'mensaje'       => $mensaje,
+        'leido'         => false,
+    ]);
+
+    return redirect()
+        ->route('financieras.archivos.index')
+        ->with('nueva_notificacion', [
+            'id'      => $notificacion->id,
+            'de_area' => $notificacion->de_area,
+            'mensaje' => $notificacion->mensaje,
+        ])
+        ->with('mensaje', 'Documento enviado a Archivos correctamente.');
 }
-
-
 
     // Mostrar registros enviados a Archivos
 public function archivos(Request $request)
@@ -369,8 +479,13 @@ public function archivos(Request $request)
         })
         ->orderBy('id', 'desc')
         ->paginate(12);
+    $notificaciones = Notificacion::where('para_area', 'Archivo')
+                                  ->where('leido', false)
+                                  ->orderBy('created_at', 'desc')
+                                  ->get();
 
-    return view('financiera.archivos.index', compact('financieras'));
+    return view('financiera.archivos.index', compact('financieras', 'notificaciones'));
+
 }
 
 public function showArchivos($id)
@@ -461,4 +576,6 @@ public function updateArchivo(Request $request, Financiera $financiera): Redirec
     }
 }
 
+
+    
 }
