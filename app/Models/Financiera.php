@@ -67,6 +67,7 @@ protected $fillable = [
     'enviado_archivo',
     'ubicacion_id',
     'estado_actual',
+    
 ];
 
 

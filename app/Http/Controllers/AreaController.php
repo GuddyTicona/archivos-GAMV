@@ -36,8 +36,8 @@ public function show($id, Request $request)
 
     // Fecha más reciente de registros
     $fecha_reciente = $area->financieras()
-        ->orderBy('fecha_envio', 'desc')
-        ->pluck('fecha_envio')
+        ->orderBy('fecha_documento', 'desc')
+        ->pluck('fecha_documento')
         ->first();
 
     // Determinar la fecha a mostrar
@@ -45,16 +45,16 @@ public function show($id, Request $request)
 
     // Últimos registros: registros de la fecha más reciente
     $ultimos_registros = $area->financieras()->with(['unidad', 'preventivos'])
-        ->whereDate('fecha_envio', $fecha_reciente)
-        ->orderBy('fecha_envio', 'desc')
+        ->whereDate('fecha_documento', $fecha_reciente)
+        ->orderBy('fecha_documento', 'desc')
         ->get();
 
     // Fechas anteriores (actas previas)
     $fechas_anteriores = $area->financieras()
-        ->whereDate('fecha_envio', '<', $fecha_reciente)
-        ->orderBy('fecha_envio', 'desc')
+        ->whereDate('fecha_documento', '<', $fecha_reciente)
+        ->orderBy('fecha_documento', 'desc')
         ->distinct()
-        ->pluck('fecha_envio');
+        ->pluck('fecha_documento');
 
  // Query principal: registros filtrados por la fecha seleccionada
 $query = $area->financieras()->with(['unidad', 'preventivos']);
@@ -76,10 +76,10 @@ if ($request->filled('buscar')) {
     });
 } else {
     // Si no hay búsqueda, filtrar por la fecha seleccionada
-    $query->whereDate('fecha_envio', $fecha_acta);
+    $query->whereDate('fecha_documento', $fecha_acta);
 }
 
-$registros_actuales = $query->orderBy('fecha_envio', 'desc')->get();
+$registros_actuales = $query->orderBy('fecha_documento', 'desc')->get();
 
 
     // Retornar vista con todas las variables necesarias

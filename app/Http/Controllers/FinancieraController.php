@@ -48,7 +48,7 @@ class FinancieraController extends Controller
     ]);
 
     // Crear financiera sin enviar
-    $financiera = new Financiera($request->except('preventivos', 'documento_adjunto', 'fecha_envio'));
+    $financiera = new Financiera($request->except('preventivos', 'documento_adjunto'));
 
     
     $financiera->save();
@@ -109,14 +109,15 @@ class FinancieraController extends Controller
         return redirect()->route('financieras.index')->with('mensaje', 'Datos actualizados correctamente (SMAF).');
     }
 
-      // Enviar registro SMAF a Despacho
-public function enviar($id)
+     public function enviar($id)
 {
     $financiera = Financiera::with('preventivos', 'unidad')->findOrFail($id);
 
     if (!$financiera->enviado_a_despacho) {
+        $financiera->fecha_envio = now();
         $financiera->enviado_a_despacho = true;
         $financiera->save();
+        
         $preventivo = $financiera->preventivos->first();
         $numeroPreventivo = $preventivo ? $preventivo->numero_preventivo : 'SIN PREVENTIVO';
 
@@ -124,7 +125,7 @@ public function enviar($id)
                  . ($financiera->unidad->nombre_unidad ?? 'N/A')
                  . ", Preventivo: {$numeroPreventivo}";
 
-        $notificacion = Notificacion::create([
+        Notificacion::create([
             'financiera_id' => $financiera->id,
             'de_area'       => 'SMAF',
             'para_area'     => 'Despacho',
@@ -132,13 +133,10 @@ public function enviar($id)
             'leido'         => false,
         ]);
 
+        // CAMBIO: Redirigir de vuelta a SMAF
         return redirect()
-            ->route('despacho.financieras.index')
-            ->with('nueva_notificacion', [
-                'id'      => $notificacion->id,
-                'de_area' => $notificacion->de_area,
-                'mensaje' => $notificacion->mensaje,
-            ]);
+            ->route('smaf.financieras.index')
+            ->with('mensaje', 'Financiera enviada a Despacho correctamente');
     }
 
     return redirect()->back()->with('mensaje', 'Esta financiera ya fue enviada.');
@@ -203,7 +201,7 @@ public function enviar($id)
         ]);
 
         return redirect()
-            ->route('tesoreria.financieras.index')
+            ->route('despacho.financieras.index')
             ->with('nueva_notificacion', [
                 'id'      => $notificacion->id,
                 'de_area' => $notificacion->de_area,
@@ -223,7 +221,7 @@ public function enviar($id)
     public function destroy($id): RedirectResponse
     {
         Financiera::findOrFail($id)->delete();
-        return Redirect::route('financieras.index')->with('mensaje', 'Financiera eliminada correctamente.');
+        return Redirect::route('smaf.financieras.index')->with('mensaje', 'Financiera eliminada correctamente.');
     }
 
     // CAMBIO DE ESTADO
@@ -241,7 +239,7 @@ public function enviar($id)
         return back()->with('mensaje', 'Estado actualizado correctamente.');
     }
 
-    // SMAF - LISTAR
+    // SMAF 
     public function indexSmaf(Request $request)
     {
         $financieras = Financiera::with(['unidad', 'area', 'preventivos'])
@@ -251,23 +249,22 @@ public function enviar($id)
         return view('financiera.smaf.index', compact('financieras'));
     }
 
-    // DESPACHO - LISTAR
-  // DESPACHO - LISTAR
-public function indexDespacho(Request $request)
-{
-    $financieras = Financiera::with(['unidad', 'area', 'preventivos', 'notificaciones'])
-        ->where('enviado_a_despacho', true)
-        ->orderBy('created_at', 'desc')
-        ->paginate(10);
 
-    // Notificaciones no leídas para el icono 🔔
-    $notificaciones = Notificacion::where('para_area', 'Despacho')
-                                  ->where('leido', false)
-                                  ->orderBy('created_at', 'desc')
-                                  ->get();
+  // DESPACHO 
+    public function indexDespacho(Request $request)
+    {
+        $financieras = Financiera::with(['unidad', 'area', 'preventivos', 'notificaciones'])
+            ->where('enviado_a_despacho', true)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-    return view('financiera.despacho.index', compact('financieras', 'notificaciones'));
-}
+        $notificaciones = Notificacion::where('para_area', 'Despacho')
+                                    ->where('leido', false)
+                                    ->orderBy('created_at', 'desc')
+                                    ->get();
+
+        return view('financiera.despacho.index', compact('financieras', 'notificaciones'));
+    }
 
 
 
@@ -387,24 +384,22 @@ public function indexTesoreria(Request $request): View
     }
 
 // FINANCIERA - Enviar a Archivos
-   public function enviarArchivo($id)
+  public function enviarArchivo($id)
 {
     $financiera = Financiera::with(['preventivos', 'unidad', 'areaDespacho'])->findOrFail($id);
 
-    // Generar código si no existe
-    if ($financiera->codigo === null) {
-        $anioMes = date('Ym'); 
-        $ultimo = Financiera::whereNotNull('codigo')
-            ->where('codigo', 'like', 'FIN-' . $anioMes . '%')
-            ->orderBy('created_at', 'desc')
-            ->value('codigo');
-        if ($ultimo) {
-            preg_match('/(\d{3})$/', $ultimo, $matches);
-            $contador = isset($matches[1]) ? intval($matches[1]) + 1 : 1;
-        } else {
-            $contador = 1;
-        }
-        $financiera->codigo = 'FIN-' . $anioMes . '-' . str_pad($contador, 3, '0', STR_PAD_LEFT);
+    // Generar código único si no existe
+    if (!$financiera->codigo) {
+        $anioMes = date('Ym');
+        $contador = 1;
+
+        do {
+            $codigo = 'FIN-' . $anioMes . '-' . str_pad($contador, 3, '0', STR_PAD_LEFT);
+            $existe = Financiera::where('codigo', $codigo)->exists();
+            $contador++;
+        } while ($existe);
+
+        $financiera->codigo = $codigo;
     }
 
     // Marcar como enviado
@@ -434,7 +429,7 @@ public function indexTesoreria(Request $request): View
     ]);
 
     return redirect()
-        ->route('financieras.archivos.index')
+        ->route('tesoreria.financieras.index')
         ->with('nueva_notificacion', [
             'id'      => $notificacion->id,
             'de_area' => $notificacion->de_area,

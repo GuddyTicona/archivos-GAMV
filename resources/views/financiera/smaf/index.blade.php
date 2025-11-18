@@ -9,9 +9,15 @@
         </div>
 
         <div class="card-body">
-            @if(session('mensaje'))
-            <div class="alert alert-success">{{ session('mensaje') }}</div>
-            @endif
+           @if($message = Session::get('mensaje'))
+                <script>
+                Swal.fire({
+                    title: "Felicidades",
+                    text: "{{$message}}",
+                    icon: "success"
+                });
+                </script>
+                @endif
             <div class="card-body bg-white">
                 <div class="table-responsive">
                     <table id="example1" class="table table-bordered table-striped table-sm">
@@ -74,7 +80,7 @@
 
 
                                     <form action="{{ route('smaf.financieras.destroy', $item->id) }}" method="POST"
-                                        class="d-inline" onsubmit="return confirm('¿Eliminar este registro?')">
+                                        class="d-inline" onsubmit="return confirm('¿Deshabilitar este registro?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-sm btn-outline-danger">Deshabilitar</button>

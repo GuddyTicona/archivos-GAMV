@@ -5,7 +5,25 @@
     <div class="row">
         <div class="col-sm-12">
 
-            {{-- Dropdown de notificaciones --}}
+
+            {{-- Mensaje de sesión --}}
+            @if(session('mensaje'))
+                <script>
+                    Swal.fire({
+                        title: "Felicidades",
+                        text: "{{ session('mensaje') }}",
+                        icon: "success"
+                    });
+                </script>
+            @endif
+
+            {{-- Tabla financieras Tesorería --}}
+            <div class="card">
+                
+                <div class="card-header">
+                    <span id="card_title">{{ __('Registros Recibidos en Tesorería') }}</span>
+                    
+             {{-- Dropdown de notificaciones --}}
             <div class="mb-3 d-flex justify-content-end">
                 <div class="dropdown">
                     <button class="btn btn-warning dropdown-toggle" type="button" id="notifDropdown"
@@ -37,21 +55,6 @@
                 </div>
             </div>
 
-            {{-- Mensaje de sesión --}}
-            @if(session('mensaje'))
-                <script>
-                    Swal.fire({
-                        title: "Felicidades",
-                        text: "{{ session('mensaje') }}",
-                        icon: "success"
-                    });
-                </script>
-            @endif
-
-            {{-- Tabla financieras Tesorería --}}
-            <div class="card">
-                <div class="card-header">
-                    <span id="card_title">{{ __('Registros Recibidos en Tesorería') }}</span>
                 </div>
                 <div class="card-body bg-white">
                     <div class="table-responsive">
@@ -131,36 +134,30 @@
                                         <a href="{{ route('tesoreria.financieras.edit', $item->id) }}" class="btn btn-sm btn-warning">
                                             Editar Tesorería
                                         </a>
-                                          {{-- Enviar a Archivos --}}
+
+                                        {{-- Enviar a Archivos --}}
                                         @if($item->enviado_archivo !== 'enviado')
-                                        {{-- Nunca enviado, mostrar botón Enviar --}}
-                                        <form action="{{ route('financieras.enviar', $item->id) }}" method="POST"
-                                            class="d-inline">
+                                        <form action="{{ route('financieras.enviar', $item->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="btn btn-sm btn-success"
-                                                onclick="return confirm('¿Desea enviar este documento a Archivos?')">
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Desea enviar este documento a Archivos?')">
                                                 Enviar a Archivos
                                             </button>
                                         </form>
                                         @else
                                         @if($item->fecha_envio && $item->updated_at > $item->fecha_envio)
-                                        {{-- Fue modificado después de ser enviado --}}
-                                        <form action="{{ route('financieras.enviar', $item->id) }}" method="POST"
-                                            class="d-inline">
+                                        <form action="{{ route('financieras.enviar', $item->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="btn btn-sm btn-warning"
-                                                onclick="return confirm('El documento fue modificado. ¿Desea reenviar a Archivos?')">
+                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('El documento fue modificado. ¿Desea reenviar a Archivos?')">
                                                 Reenviar a Archivos
                                             </button>
                                         </form>
                                         @else
-                                        {{-- Ya enviado y sin modificaciones posteriores --}}
                                         <span class="badge badge-success">Enviado</span>
                                         @endif
                                         @endif
-                                        
+
                                         {{-- Badge de notificación --}}
                                         <span class="badge-container" data-id="{{ $item->id }}">
                                             @if($item->notificaciones->where('leido', false)->count() > 0)
@@ -184,6 +181,7 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -196,6 +194,8 @@ document.addEventListener("DOMContentLoaded", function() {
         "language": {
             "emptyTable": "No hay información",
             "info": "Mostrando START a END de TOTAL registros",
+            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+            "infoFiltered": "(filtrado de MAX registros en total)",
             "lengthMenu": "Mostrar MENU registros",
             "search": "Buscador:",
             "zeroRecords": "No se encontraron resultados",
@@ -222,10 +222,15 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(res => res.json())
         .then(data => {
             if(data.success){
+                // Quitar notificación del dropdown
                 const notifItem = document.getElementById('notif-item-' + notificacion_id);
                 if(notifItem) notifItem.remove();
+
+                // Cambiar badge a "Leído"
                 const badgeContainer = document.querySelector('.badge-container[data-id="' + financiera_id + '"]');
                 if(badgeContainer) badgeContainer.innerHTML = '<span class="badge bg-success">Leído</span>';
+
+                // Reducir contador de campana
                 const countElem = document.getElementById('notif-count');
                 if(countElem){
                     let newCount = parseInt(countElem.innerText.trim()) - 1;
@@ -234,10 +239,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         })
-        .catch(err => console.error(err));
+        .catch(err => console.error('Error al marcar notificación:', err));
     };
 
-    // Delegación de eventos para botones "marcar como leído"
+    // Delegación de eventos para botones "marcar como leído" en dropdown
     document.querySelector('ul.dropdown-menu').addEventListener('click', function(e){
         if(e.target.classList.contains('marcar-leida')){
             e.preventDefault();
@@ -247,23 +252,35 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Alerta para nueva notificación
-    @if(session('nueva_notificacion'))
-        let notif = @json(session('nueva_notificacion'));
-        Swal.fire({
-            title: "Nueva Notificación",
-            html: 'Se envió una financiera: <br><strong>' + notif.mensaje + '</strong>',
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonText: "Marcar como leído",
-            cancelButtonText: "Cerrar"
-        }).then((result) => {
-            if(result.isConfirmed){
-                window.marcarLeida(notif.id, notif.financiera_id);
-            }
-        });
+    // Mostrar notificaciones tipo toast al ingresar
+    @foreach ($notificaciones->where('leido', false) as $n)
+    Swal.fire({
+        title: "Nueva Notificación",
+        text: "{{ $n->mensaje }}",
+        icon: "info",
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: true,
+        confirmButtonText: "Marcar como leído",
+        timer: 5000,
+        timerProgressBar: true
+    }).then((result) => {
+        if(result.isConfirmed){
+            window.marcarLeida({{ $n->id }}, {{ $n->financiera_id }});
+        }
+    });
+    @endforeach
+
+    // Mensajes generales de sesión
+    @if(session('mensaje'))
+    Swal.fire({
+        title: "Felicidades",
+        text: "{{ session('mensaje') }}",
+        icon: "success"
+    });
     @endif
 
 });
 </script>
 @endsection
+

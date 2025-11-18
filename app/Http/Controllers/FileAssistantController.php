@@ -97,7 +97,7 @@ Usuario mensaje: '{$mensaje}'
         }
     }
 
-    // --- Buscar unidades en DB según criterios de IA ---
+  
     private function buscarUnidadesDB(array $criterios)
     {
         $query = DB::table('unidades');
