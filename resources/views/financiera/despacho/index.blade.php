@@ -5,33 +5,33 @@
     <div class="row">
         <div class="col-sm-12">
 
-             {{-- Dropdown de notificaciones --}}
+            {{-- Dropdown de notificaciones --}}
             <div class="mb-3 d-flex justify-content-end">
                 <div class="dropdown">
                     <button class="btn btn-warning dropdown-toggle" type="button" id="notifDropdown"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-bell"></i>
                         @if($notificaciones->where('leido', false)->count() > 0)
-                            <span class="badge bg-danger" id="notif-count">
-                                {{ $notificaciones->where('leido', false)->count() }}
-                            </span>
+                        <span class="badge bg-danger" id="notif-count">
+                            {{ $notificaciones->where('leido', false)->count() }}
+                        </span>
                         @endif
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" style="width:300px;">
                         @forelse($notificaciones->where('leido', false) as $n)
-                            <li class="dropdown-item d-flex justify-content-between align-items-start" id="notif-item-{{ $n->id }}">
-                                <div>
-                                    <small class="text-muted">{{ $n->created_at->format('d/m/Y H:i') }}</small><br>
-                                    {{ $n->mensaje }}
-                                </div>
-                                <button class="btn btn-sm btn-outline-success marcar-leida" 
-                                        data-id="{{ $n->id }}"
-                                        data-financiera="{{ $n->financiera_id }}">
-                                    ✔
-                                </button>
-                            </li>
+                        <li class="dropdown-item d-flex justify-content-between align-items-start"
+                            id="notif-item-{{ $n->id }}">
+                            <div>
+                                <small class="text-muted">{{ $n->created_at->format('d/m/Y H:i') }}</small><br>
+                                {{ $n->mensaje }}
+                            </div>
+                            <button class="btn btn-sm btn-outline-success marcar-leida" data-id="{{ $n->id }}"
+                                data-financiera="{{ $n->financiera_id }}">
+                                ✔
+                            </button>
+                        </li>
                         @empty
-                            <li class="dropdown-item text-center text-muted">No hay notificaciones</li>
+                        <li class="dropdown-item text-center text-muted">No hay notificaciones</li>
                         @endforelse
                     </ul>
                 </div>
@@ -40,11 +40,11 @@
             {{-- Mensaje general --}}
             @if($message = Session::get('mensaje'))
             <script>
-                Swal.fire({
-                    title: "Felicidades",
-                    text: "{{$message}}",
-                    icon: "success"
-                });
+            Swal.fire({
+                title: "Felicidades",
+                text: "{{$message}}",
+                icon: "success"
+            });
             </script>
             @endif
 
@@ -97,24 +97,39 @@
                                     </td>
                                     <td>{{ $item->estado_despacho ?? 'Pendiente' }}</td>
                                     <td>
-                                        <form action="{{ route('financieras.estado_administrativo', $item->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('financieras.estado_administrativo', $item->id) }}"
+                                            method="POST" class="d-inline">
                                             @csrf
                                             @method('PUT')
                                             <div class="btn-group">
-                                                <button type="submit" name="estado_administrativo" value="pendiente" class="btn btn-sm {{ $item->estado_administrativo === 'pendiente' ? 'btn-warning' : 'btn-outline-warning' }}">Pendiente</button>
-                                                <button type="submit" name="estado_administrativo" value="recibido" class="btn btn-sm {{ $item->estado_administrativo === 'recibido' ? 'btn-success' : 'btn-outline-success' }}">Recibido</button>
-                                                <button type="submit" name="estado_administrativo" value="rechazado" class="btn btn-sm {{ $item->estado_administrativo === 'rechazado' ? 'btn-danger' : 'btn-outline-danger' }}">Rechazado</button>
+                                                <button type="submit" name="estado_administrativo" value="pendiente"
+                                                    class="btn btn-sm {{ $item->estado_administrativo === 'pendiente' ? 'btn-warning' : 'btn-outline-warning' }}">Pendiente</button>
+                                                <button type="submit" name="estado_administrativo" value="recibido"
+                                                    class="btn btn-sm {{ $item->estado_administrativo === 'recibido' ? 'btn-success' : 'btn-outline-success' }}">Recibido</button>
+                                                <button type="submit" name="estado_administrativo" value="rechazado"
+                                                    class="btn btn-sm {{ $item->estado_administrativo === 'rechazado' ? 'btn-danger' : 'btn-outline-danger' }}">Rechazado</button>
                                             </div>
                                         </form>
                                     </td>
                                     <td>
-                                        <a href="{{ route('financieras.show', $item->id) }}" class="btn btn-sm btn-outline-primary">Ver detalles</a>
-                                        <a href="{{ route('despacho.financieras.edit', $item->id) }}" class="btn btn-sm btn-outline-success">Completar registro</a>
-                                        <form action="{{ route('despacho.financieras.enviar', $item->id) }}" method="POST" style="display:inline;">
+                                        <a href="{{ route('financieras.show', $item->id) }}"
+                                            class="btn btn-sm btn-outline-primary">Ver detalles</a>
+                                        <a href="{{ route('despacho.financieras.edit', $item->id) }}"
+                                            class="btn btn-sm btn-outline-success">Completar registro</a>
+                                        @if(!$item->enviado_a_despacho)
+                                        <form action="{{ route('despacho.financieras.enviar', $item->id) }}"
+                                            method="POST" style="display:inline;">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('¿Enviar este documento a Tesorería?')">Enviar</button>
+                                            <button type="submit" class="btn btn-primary btn-sm"
+                                                onclick="return confirm('¿Enviar este documento a Tesorería?')">
+                                                Enviar
+                                            </button>
                                         </form>
+                                        @else
+                                        <span class="badge bg-secondary">Enviado</span>
+                                        @endif
+
 
                                         {{-- Badge --}}
                                         <span class="badge-container" data-id="{{ $item->id }}">
@@ -170,32 +185,34 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function marcarLeida(notificacion_id, financiera_id) {
         fetch('/notificaciones/marcar-leida/' + notificacion_id, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const notifItem = document.getElementById('notif-item-' + notificacion_id);
-                if (notifItem) notifItem.remove();
-                const badgeContainer = document.querySelector('.badge-container[data-id="' + financiera_id + '"]');
-                if (badgeContainer) badgeContainer.innerHTML = '<span class="badge bg-success">Leído</span>';
-                const countElem = document.getElementById('notif-count');
-                if (countElem) {
-                    let newCount = parseInt(countElem.innerText.trim()) - 1;
-                    if (newCount > 0) countElem.innerText = newCount;
-                    else countElem.remove();
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const notifItem = document.getElementById('notif-item-' + notificacion_id);
+                    if (notifItem) notifItem.remove();
+                    const badgeContainer = document.querySelector('.badge-container[data-id="' +
+                        financiera_id + '"]');
+                    if (badgeContainer) badgeContainer.innerHTML =
+                        '<span class="badge bg-success">Leído</span>';
+                    const countElem = document.getElementById('notif-count');
+                    if (countElem) {
+                        let newCount = parseInt(countElem.innerText.trim()) - 1;
+                        if (newCount > 0) countElem.innerText = newCount;
+                        else countElem.remove();
+                    }
                 }
-            }
-        })
-        .catch(err => console.error('Error al marcar notificación:', err));
+            })
+            .catch(err => console.error('Error al marcar notificación:', err));
     }
 
- 
+
     document.querySelector('ul.dropdown-menu').addEventListener('click', function(e) {
         if (e.target.classList.contains('marcar-leida')) {
             let notificacion_id = e.target.dataset.id;
@@ -205,18 +222,19 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 
-    @foreach ($notificaciones->where('leido', false) as $n)
-        Swal.fire({
-            title: "Nueva Notificación",
-            text: "{{ $n->mensaje }}",
-            icon: "info",
-            confirmButtonText: "Marcar como leído"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                marcarLeida({{ $n->id }}, {{ $n->financiera_id }});
-            }
-        });
-    @endforeach
+   @foreach($notificaciones->where('leido', false) as $n)
+Swal.fire({
+    title: "Nueva Notificación",
+    text: "{{ $n->mensaje }}",
+    icon: "info",
+    confirmButtonText: "Marcar como leído"
+}).then((result) => {
+    if (result.isConfirmed) {
+        marcarLeida({{ $n->id }}, {{ $n->financiera_id }});
+    }
+});
+@endforeach
+
 
 });
 </script>

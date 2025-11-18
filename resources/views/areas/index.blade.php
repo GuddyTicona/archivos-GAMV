@@ -2,6 +2,17 @@
 
 @section('content')
 <div class="container my-5">
+    
+            {{-- Mensaje de sesión --}}
+            @if(session('mensaje'))
+                <script>
+                    Swal.fire({
+                        title: "Felicidades",
+                        text: "{{ session('mensaje') }}",
+                        icon: "success"
+                    });
+                </script>
+            @endif
 
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-header bg-primary text-white">
@@ -17,12 +28,7 @@
 
 
         <div class="card-body">
-            @if(session('mensaje'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('mensaje') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-            </div>
-            @endif
+           
 
             <div class="table-responsive">
                 <table class="table table-sm table-bordered table-hover align-middle mb-0">
@@ -48,7 +54,7 @@
                                     <i class="fa fa-file-pdf"></i> Generar Reporte
                                 </a>-->
 
-                                <!-- <form action="{{ route('areas.destroy', $area->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('¿Está seguro de eliminar esta área?')">
+                                 <!--<form action="{{ route('areas.destroy', $area->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('¿Está seguro de eliminar esta área?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-outline-danger btn-sm">

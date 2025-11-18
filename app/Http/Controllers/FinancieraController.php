@@ -13,14 +13,23 @@ use App\Http\Requests\FinancieraRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+
 class FinancieraController extends Controller
+
 {
+    
     // LISTADO GENERAL
+    
     public function index(Request $request): View
+    
     {
-        $financieras = Financiera::with(['unidad', 'area', 'preventivos'])
+        
+        $financieras = Financiera::with(['unidad', 'area', 'pr
+        eventivos'])
             ->orderBy('created_at', 'asc')
+            
             ->paginate();
 
         return view('financiera.index', compact('financieras'))
@@ -85,62 +94,72 @@ class FinancieraController extends Controller
     }
 
     // UPDATE — SMAF
-    public function updateSmaf(FinancieraRequest $request, Financiera $financiera): RedirectResponse
-    {
-        $request->validate([
-            'unidad_id' => 'required|exists:unidades,id',
-            'area_id' => 'required|exists:areas,id',
-            'preventivos.*.numero_preventivo' => 'required|string|max:50',
-            'preventivos.*.total_pago' => 'required|numeric',
-            'numero_foja' => 'nullable|string|max:100',
+   public function updateSmaf(FinancieraRequest $request, $id): RedirectResponse
+{
+    // Cargar la financiera con preventivos
+    $financiera = Financiera::with('preventivos')->findOrFail($id);
+
+    // Validación
+    $request->validate([
+        'unidad_id' => 'required|exists:unidades,id',
+        'area_id' => 'required|exists:areas,id',
+        'preventivos.*.numero_preventivo' => 'required|string|max:50',
+        'preventivos.*.total_pago' => 'required|numeric',
+        'numero_foja' => 'nullable|string|max:100',
+    ]);
+
+    // Actualizar financiera
+    $financiera->update($request->except('preventivos', 'documento_adjunto'));
+
+    // Guardar documento adjunto si existe
+    if ($request->hasFile('documento_adjunto')) {
+        $financiera->update([
+            'documento_adjunto' => $request->file('documento_adjunto')->store('documentos_adjuntos', 'public')
         ]);
-
-        $financiera->update($request->except('preventivos', 'documento_adjunto'));
-     
-
-
-        if ($request->hasFile('documento_adjunto')) {
-            $financiera->update(['documento_adjunto' => $request->file('documento_adjunto')->store('documentos_adjuntos', 'public')]);
-               $financiera->save();
-        }
-
-        $this->actualizarPreventivos($financiera, $request->preventivos);
-
-        return redirect()->route('financieras.index')->with('mensaje', 'Datos actualizados correctamente (SMAF).');
     }
 
-     public function enviar($id)
+    // Actualizar preventivos solo si vienen en el request
+    if (!empty($request->preventivos) && is_array($request->preventivos)) {
+        $this->actualizarPreventivos($financiera, $request->preventivos);
+    }
+
+    return redirect()
+        ->route('smaf.financieras.index')
+        ->with('mensaje', 'Datos actualizados correctamente (SMAF).');
+}
+
+ public function enviar($id)
 {
     $financiera = Financiera::with('preventivos', 'unidad')->findOrFail($id);
 
-    if (!$financiera->enviado_a_despacho) {
-        $financiera->fecha_envio = now();
-        $financiera->enviado_a_despacho = true;
-        $financiera->save();
-        
-        $preventivo = $financiera->preventivos->first();
-        $numeroPreventivo = $preventivo ? $preventivo->numero_preventivo : 'SIN PREVENTIVO';
+    // Marcar como enviado y actualizar fecha de envío
+    $financiera->enviado_a_despacho = true;
+    $financiera->fecha_envio = now();
+    $financiera->save();
 
-        $mensaje = "Se envió una financiera: Entidad: {$financiera->entidad}, Unidad: "
-                 . ($financiera->unidad->nombre_unidad ?? 'N/A')
-                 . ", Preventivo: {$numeroPreventivo}";
+    $preventivo = $financiera->preventivos->first();
+    $numeroPreventivo = $preventivo ? $preventivo->numero_preventivo : 'SIN PREVENTIVO';
 
-        Notificacion::create([
-            'financiera_id' => $financiera->id,
-            'de_area'       => 'SMAF',
-            'para_area'     => 'Despacho',
-            'mensaje'       => $mensaje,
-            'leido'         => false,
-        ]);
+    // Determinar si es primer envío o reenvío
+    $mensajeAccion = $financiera->wasChanged('fecha_envio') ? 'Se reenvió' : 'Se envió';
+    $mensaje = "{$mensajeAccion} una financiera: Entidad: {$financiera->entidad}, Unidad: "
+             . ($financiera->unidad->nombre_unidad ?? 'N/A')
+             . ", Preventivo: {$numeroPreventivo}";
 
-        // CAMBIO: Redirigir de vuelta a SMAF
-        return redirect()
-            ->route('smaf.financieras.index')
-            ->with('mensaje', 'Financiera enviada a Despacho correctamente');
-    }
+    Notificacion::create([
+        'financiera_id' => $financiera->id,
+        'de_area'       => 'SMAF',
+        'para_area'     => 'Despacho',
+        'mensaje'       => $mensaje,
+        'leido'         => false,
+    ]);
 
-    return redirect()->back()->with('mensaje', 'Esta financiera ya fue enviada.');
+    return redirect()
+        ->route('smaf.financieras.index')
+        ->with('mensaje', 'Financiera enviada correctamente a Despacho.');
 }
+
+
 
 
 
@@ -169,6 +188,7 @@ class FinancieraController extends Controller
         $financiera->area_despacho_id = $request->area_despacho_id;
         $financiera->numero_hoja_ruta = $request->numero_hoja_ruta;
         $financiera->numero_foja = $request->numero_foja;
+         $financiera->enviado_a_tesoreria = false;
 
         $financiera->save();
 
@@ -218,11 +238,16 @@ class FinancieraController extends Controller
 
 
     // ELIMINAR
-    public function destroy($id): RedirectResponse
-    {
-        Financiera::findOrFail($id)->delete();
-        return Redirect::route('smaf.financieras.index')->with('mensaje', 'Financiera eliminada correctamente.');
-    }
+public function destroy($id): RedirectResponse
+{
+    Financiera::findOrFail($id)->delete();
+
+    // Ajustar AUTO_INCREMENT al siguiente ID disponible
+    $nextId = DB::table('financieras')->max('id') + 1;
+    DB::statement("ALTER TABLE financieras AUTO_INCREMENT = {$nextId}");
+
+    return Redirect::route('smaf.financieras.index')->with('mensaje', 'Financiera eliminada correctamente.');
+}
 
     // CAMBIO DE ESTADO
     public function actualizarEstado(Request $request, $id)

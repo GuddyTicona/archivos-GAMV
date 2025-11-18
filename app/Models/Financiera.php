@@ -4,6 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Preventivo;
+use App\Models\Unidad;
+use App\Models\Area;
+use App\Models\AreaDespacho;
+use App\Models\AreaArchivo;
+use App\Models\Notificacion;
+use App\Models\Ubicacion;
+use App\Models\PrestamoArchivo;
+
 /**
  * Class Financiera
  *
@@ -100,10 +110,11 @@ protected $fillable = [
 
     //preventivos
 
-     public function preventivos()
-    {
-        return $this->hasMany(Preventivo::class);
-    }
+    public function preventivos()
+{
+    return $this->hasMany(Preventivo::class, 'financiera_id', 'id');
+}
+
 
 
      public function ubicacion()
@@ -127,7 +138,7 @@ protected $fillable = [
         return !$ultimo || $ultimo->fecha_devolucion != null;
     }
 
-   // En App\Models\Financiera.php
+
 public function notificaciones()
 {
     return $this->hasMany(Notificacion::class, 'financiera_id');

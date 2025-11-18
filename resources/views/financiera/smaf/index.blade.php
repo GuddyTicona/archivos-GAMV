@@ -26,9 +26,9 @@
                                 <th>Nro</th>
                                 <th>Entidad</th>
                                 <th>Unidad</th>
-                                <th>Área</th>
+                                <th>Acta smaf</th>
                    
-                                <th>Estado Administrativo</th>
+                                <th>Estado</th>
                                 <th>Fecha Documento</th>
                                 <th>N° Preventivo</th>
                                 <th>Total Pago (Bs)</th>
@@ -63,20 +63,31 @@
 
                                     <a href="{{ route('smaf.financieras.edit', $item->id) }}"
                                         class="btn btn-sm btn-outline-success">Editar</a>
+@if(!$item->enviado_a_despacho)
+    {{-- PRIMER ENVÍO --}}
+    <form action="{{ route('smaf.financieras.enviar', $item->id) }}" method="POST" class="d-inline">
+        @csrf
+        <button type="submit" class="btn btn-sm btn-success"
+            onclick="return confirm('¿Enviar esta financiera?')">
+            Enviar
+        </button>
+    </form>
 
-                                    {{-- Solo mostrar botón si NO se ha enviado --}}
-                                    @if(!$item->enviado_a_despacho)
-                                    <form action="{{ route('smaf.financieras.enviar', $item->id) }}" method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-success"
-                                            onclick="return confirm('¿Enviar esta financiera?')">
-                                            Enviar
-                                        </button>
-                                    </form>
-                                    @else
-                                    <span class="badge bg-secondary">Enviado</span>
-                                    @endif
+@elseif($item->updated_at > $item->fecha_envio)
+    {{-- REENVIAR SI HUBO MODIFICACIÓN --}}
+    <form action="{{ route('smaf.financieras.enviar', $item->id) }}" method="POST" class="d-inline">
+        @csrf
+        <button type="submit" class="btn btn-sm btn-warning"
+            onclick="return confirm('Esta financiera fue modificada. ¿Reenviar a Despacho?')">
+            Reenviar
+        </button>
+    </form>
+
+@else
+    {{-- YA ENVIADO Y NO MODIFICADO --}}
+    <span class="badge bg-secondary">Enviado</span>
+@endif
+
 
 
                                     <form action="{{ route('smaf.financieras.destroy', $item->id) }}" method="POST"

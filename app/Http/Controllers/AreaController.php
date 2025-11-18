@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+
 
 class AreaController extends Controller
 {
@@ -114,12 +116,17 @@ $registros_actuales = $query->orderBy('fecha_documento', 'desc')->get();
 
         return redirect()->route('areas.index')->with('mensaje', 'Área actualizada correctamente.');
     }
+public function destroy($id)
+{
+    Area::findOrFail($id)->delete();
 
-    public function destroy($id)
-    {
-        Area::findOrFail($id)->delete();
-        return redirect()->route('areas.index')->with('mensaje', 'Área eliminada.');
-    }
+    // Ajustar AUTO_INCREMENT al siguiente ID
+    $nextId = DB::table('areas')->max('id') + 1;
+    DB::statement("ALTER TABLE areas AUTO_INCREMENT = {$nextId}");
+
+    return redirect()->route('areas.index')->with('mensaje', 'Área eliminada correctamente ');
+}
+
 
 
 
