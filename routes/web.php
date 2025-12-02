@@ -332,3 +332,5 @@ Route::post('smaf/financieras/{id}/enviar', [FinancieraController::class, 'envia
    
 Route::post('/notificaciones/marcar-leida/{id}', [NotificacionController::class, 'marcarLeida'])
     ->name('notificaciones.marcar-leida');
+Route::get('/chat', [ChatController::class, 'view'])->name('chat.view');
+Route::post('/n8n/chat', [ChatController::class, 'handle'])->name('chat.handle');
