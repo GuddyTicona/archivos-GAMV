@@ -116,7 +116,7 @@
                                             class="btn btn-sm btn-outline-primary">Ver detalles</a>
                                         <a href="{{ route('despacho.financieras.edit', $item->id) }}"
                                             class="btn btn-sm btn-outline-success">Completar registro</a>
-                                        @if(!$item->enviado_a_despacho)
+                                        @if(!$item->enviado_a_tesoreria)
                                         <form action="{{ route('despacho.financieras.enviar', $item->id) }}"
                                             method="POST" style="display:inline;">
                                             @csrf

@@ -3,7 +3,7 @@
   import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
 
   createChat({
-    webhookUrl: 'https://guddy.app.n8n.cloud/webhook/f80a9071-c34a-4c4d-8ad5-73d183f7a2a5/chat',
+    webhookUrl: 'https://guddyth.app.n8n.cloud/webhook/682292ab-5b6e-40ce-99f7-8bca3fa8e55b/chat',
     webhookConfig: {
       method: 'POST',
       headers: {}

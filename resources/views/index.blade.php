@@ -1,7 +1,8 @@
 @extends('layouts.admin')
-@include('components.chat')
+
 
 @section('content')
+
 <style>
 :root {
     --primary: #003366;
@@ -140,12 +141,14 @@ body {
     </div>
 
     <!-- GRÁFICO -->
+     @role('administrador')
     <div class="mt-5">
         <h5 class="section-title">
             <i class="bi bi-bar-chart-fill text-danger me-2"></i>Resumen General de Datos
         </h5>
         <canvas id="graficoResumen" height="120"></canvas>
     </div>
+    @endrole
 
    <!-- MAPA -->
 <div class="mt-5 mb-5">

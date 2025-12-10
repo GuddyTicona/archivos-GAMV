@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+@include('components.chat')
 <!--
 This is a starter template page. Use this page to start your new project from
 scratch. This page gets rid of all links and provides the needed markup only.
@@ -273,6 +274,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         </style>
 
                         <!-- Unidades -->
+                        @hasanyrole('administrador|central|smaf')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-diagram-2-fill"></i>
@@ -293,8 +295,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-
+                        @endhasanyrole
                         <!-- Archivos -->
+                        @hasanyrole('administrador|central')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-folder2-open"></i>
@@ -313,7 +316,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                         <p>Listado Archivos</p>
                                     </a>
                                 </li>
-                                 <li class="nav-item">
+                                <li class="nav-item">
                                     <a href="{{ route('prestamo_central.index') }}" class="nav-link">
                                         <i class="bi bi-key"></i>
                                         <p>Prestamos</p>
@@ -321,8 +324,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-
+                        @endhasanyrole
                         <!-- Categorías -->
+                        @hasanyrole('administrador|central')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-archive"></i>
@@ -343,8 +347,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-
+                        @endhasanyrole
                         <!-- Archivos Financieros -->
+                        @role('administrador')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-bank2"></i>
@@ -365,29 +370,38 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-
+                        @endrole
                         <!-- Administración SMAF -->
+                        @hasanyrole('administrador|smaf')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-bank"></i>
                                 <p>Administración SMAF <i class="right fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
+
                                 <li class="nav-item">
+
                                     <a href="{{ route('smaf.financieras.index') }}" class="nav-link">
                                         <i class="bi bi-gear"></i>
                                         <p>Gestión Financiera</p>
                                     </a>
+
                                 </li>
+
+
                                 <li class="nav-item">
                                     <a href="{{ url('areas') }}" class="nav-link">
                                         <i class="bi bi-file-earmark-text"></i>
                                         <p>Actas SMAF</p>
                                     </a>
                                 </li>
+
                             </ul>
                         </li>
+                        @endhasanyrole
                         <!-- Administración Despacho -->
+                        @hasanyrole('administrador|despacho')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-briefcase-fill"></i>
@@ -414,8 +428,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-
-
+                        @endhasanyrole
+                        @hasanyrole('administrador|tesoreria')
                         <!-- Tesorería -->
                         <li class="nav-item">
                             <a href="#" class="nav-link">
@@ -437,7 +451,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
+                        @endhasanyrole
                         <!-- Archivos -->
+                        @hasanyrole('administrador|archivos')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-wallet2"></i>
@@ -453,8 +469,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-
+                        @endhasanyrole
                         <!-- GESTION DE ARCHIVOS-->
+                        @hasanyrole('administrador|archivos')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="fas fa-archive"></i>
@@ -475,9 +492,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-
+                        @endhasanyrole
 
                         <!-- SMAF Registros -->
+                        @role('administrador')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-journal-text"></i>
@@ -492,8 +510,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-
+                        @endrole
                         <!-- Historial Archivos -->
+                        @role('administrador')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-bar-chart-line-fill"></i>
@@ -514,8 +533,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
+                        @endrole
 
                         <!-- Administración Usuarios -->
+                        @role('administrador')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="fas fa-user-shield"></i>
@@ -542,7 +563,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-
+                        @endrole
                         <!-- Usuarios 
                         <li class="nav-item">
                             <a href="#" class="nav-link">
