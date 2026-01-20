@@ -399,6 +399,11 @@ Route::get('areas-despacho/{areaId}/financiera/{financieraId}/reporte', [AreaDes
     Route::get('prestamo_central/create/{archivo_id?}', [PrestamoArchivocentralController::class, 'create'])
         ->middleware('permission:prestamo-central.create|role:administrador|central')
         ->name('prestamo_central.create_archivo');
+    Route::get('prestamo_central/create/{archivo_id?}', [PrestamoArchivocentralController::class, 'create'])
+        ->middleware('permission:prestamo-central.create|role:administrador|central')
+        ->name('prestamo_central.create_archivo');
+
+
     Route::patch('prestamo_central/{prestamo}/devolver', [PrestamoArchivocentralController::class, 'devolver'])
         ->middleware('permission:prestamo-central.edit|role:administrador|central')
         ->name('prestamo_central.devolver');

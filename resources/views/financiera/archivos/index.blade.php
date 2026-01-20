@@ -77,7 +77,15 @@
                             <div class="btn-group" role="group">
                                 <a href="{{ route('financieras.archivos.show', $item->id) }}" class="btn btn-primary btn-sm">Ver</a>
                                 <a href="{{ route('financieras.editArchivo', $item->id) }}" class="btn btn-warning btn-sm">Editar Archivo</a>
-                                <a href="{{ route('ubicaciones.seleccionarEstante', $item->id) }}" class="btn btn-info btn-sm"><i class="bi bi-pin-map-fill"></i> Asignar</a>
+                               @if($item->ubicacion_id)
+                                    <button class="btn btn-success btn-sm" disabled>
+                                        <i class="bi bi-check-circle-fill"></i> Asignado
+                                    </button>
+                                @else
+                                    <a href="{{ route('ubicaciones.seleccionarEstante', $item->id) }}" class="btn btn-info btn-sm">
+                                        <i class="bi bi-pin-map-fill"></i> Asignar
+                                    </a>
+                                @endif
                             </div>
                             <span class="badge-container" data-id="{{ $item->id }}">
                                 @if($item->notificaciones->where('leido', false)->count() > 0)

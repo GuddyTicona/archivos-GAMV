@@ -88,7 +88,7 @@
                                             @endphp
 
                                             @if(!$prestamoActivo)
-                                            <a href="{{ route('prestamo_central.create', ['archivo_id' => $archivo->id]) }}"
+                                            <a href="{{ route('prestamo_central.create_archivo', ['archivo_id' => $archivo->id]) }}"
                                                 class="btn btn-outline-success btn-sm">
                                                 <i class="bi bi-box-arrow-in-down"></i> Prestar
                                             </a>

@@ -2,6 +2,15 @@
 
 @section('content')
 <div class="container py-4">
+    @if($message = Session::get('success'))
+                <script>
+                Swal.fire({
+                    title: "Felicidades",
+                    text: "{{ $message }}",
+                    icon: "success"
+                });
+                </script>
+                @endif
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <h5 class="fw-bold text-center text-secondary mb-3">Ubicaciones Financieras — Estante {{ $estante }}</h5>

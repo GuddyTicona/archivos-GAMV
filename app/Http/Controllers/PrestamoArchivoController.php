@@ -21,32 +21,31 @@ class PrestamoArchivoController extends Controller
     }
 
 
-   public function store(Request $request)
-{
-    // dd($request->all()); // Para depurar si quieres
+    public function store(Request $request)
+    {
+        $request->validate([
+            'financiera_id' => 'required|exists:financieras,id',
+            'solicitante' => 'required|string|max:255',
+            'cargo_departamento' => 'nullable|string|max:255',
+            'fecha_prestamo' => 'required|date',
+            'motivo_prestamo' => 'nullable|string',
+            'observaciones' => 'nullable|string',
+        ]);
 
-    $request->validate([
-        'financiera_id' => 'required|exists:financieras,id',
-        'solicitante' => 'required|string|max:255',
-        'cargo_departamento' => 'nullable|string|max:255',
-        'fecha_prestamo' => 'required|date',
-        'motivo_prestamo' => 'nullable|string',
-        'observaciones' => 'nullable|string',
-    ]);
+        PrestamoArchivo::create($request->only(
+            'financiera_id',
+            'solicitante',
+            'cargo_departamento',
+            'fecha_prestamo',
+            'motivo_prestamo',
+            'observaciones'
+        ));
 
-    PrestamoArchivo::create([
-        'financiera_id' => $request->financiera_id,
-        'solicitante' => $request->solicitante,
-        'cargo_departamento' => $request->cargo_departamento,
-        'fecha_prestamo' => $request->fecha_prestamo,
-        'motivo_prestamo' => $request->motivo_prestamo,
-        'observaciones' => $request->observaciones,
-    ]);
+        return redirect()
+            ->route('ubicaciones.show_estante', Financiera::find($request->financiera_id)->ubicacion->estante)
+            ->with('success', 'Préstamo registrado correctamente.');
+    }
 
-    return redirect()
-        ->route('ubicaciones.show_estante', Financiera::find($request->financiera_id)->ubicacion->estante)
-        ->with('success', 'Préstamo registrado correctamente.');
-}
 
     // Marcar un archivo como devuelto
     public function devolver(PrestamoArchivo $prestamo)
