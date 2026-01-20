@@ -274,7 +274,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         </style>
 
                         <!-- Unidades -->
-                        @hasanyrole('administrador|central|smaf')
+                        @hasanyrole('administrador|central')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="bi bi-diagram-2-fill"></i>

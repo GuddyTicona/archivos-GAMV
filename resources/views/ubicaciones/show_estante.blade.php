@@ -46,18 +46,19 @@
                                         class="btn btn-outline-info btn-sm">
                                         <i class="bi bi-eye"></i> Ver detalles
                                     </a>
-                                    @php $prestamoActivo = $item->prestamos()->whereNull('fecha_devolucion')->first();
+                                    @php
+                                    $prestamoActivo = $item->prestamos()->whereNull('fecha_devolucion')->first();
                                     @endphp
+
                                     @if(!$prestamoActivo)
-                                    <a href="{{ route('prestamos.create', $item->id) }}"
+                                    <a href="{{ route('prestamos.create_financiera', $item->id) }}"
                                         class="btn btn-outline-success btn-sm">
                                         <i class="bi bi-box-arrow-in-down"></i> Prestar
                                     </a>
-
-
                                     @else
                                     <span class="badge bg-danger mx-2">Actualmente prestado</span>
                                     @endif
+
                                     <form action="{{ route('ubicaciones.destroy', $ubic->id) }}" method="POST"
                                         class="d-inline"
                                         onsubmit="return confirm('¿Seguro que deseas eliminar esta ubicación?');">

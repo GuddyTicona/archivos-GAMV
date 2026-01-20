@@ -1,5 +1,7 @@
 @extends('layouts.admin')
-
+@php
+    $notificaciones = $notificaciones ?? collect();
+@endphp
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -102,12 +104,14 @@
                                             @csrf
                                             @method('PUT')
                                             <div class="btn-group">
+                                                @role('administrador|despacho')
                                                 <button type="submit" name="estado_administrativo" value="pendiente"
                                                     class="btn btn-sm {{ $item->estado_administrativo === 'pendiente' ? 'btn-warning' : 'btn-outline-warning' }}">Pendiente</button>
                                                 <button type="submit" name="estado_administrativo" value="recibido"
                                                     class="btn btn-sm {{ $item->estado_administrativo === 'recibido' ? 'btn-success' : 'btn-outline-success' }}">Recibido</button>
                                                 <button type="submit" name="estado_administrativo" value="rechazado"
                                                     class="btn btn-sm {{ $item->estado_administrativo === 'rechazado' ? 'btn-danger' : 'btn-outline-danger' }}">Rechazado</button>
+                                                @endrole
                                             </div>
                                         </form>
                                     </td>

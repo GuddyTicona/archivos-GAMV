@@ -22,8 +22,8 @@
     ],
     i18n: {
       es: {
-        title: '¡Hola! 👋',
-        subtitle: 'Inicia una conversación. Estamos aquí para ayudarte 24/7.',
+        title: 'Bienvenido/a Asistente GAMV',
+        subtitle: 'Inicia una conversación, Estamos aqui para guiarte en la utilidad del sistema',
         footer: '',
         getStarted: 'Nueva Conversación',
         inputPlaceholder: 'Escribe tu pregunta...',

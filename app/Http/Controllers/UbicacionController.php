@@ -74,9 +74,13 @@ class UbicacionController extends Controller
     }
 
     //detalles de ubicaciones
-    public function verEstante($estante)
+public function verEstante($estante)
 {
-    $ubicaciones = Ubicacion::where('estante', $estante)->with('financieras')->get();
+    $ubicaciones = Ubicacion::where('estante', $estante)
+        ->with('financieras')
+        ->orderBy('fila')
+        ->orderBy('columna')
+        ->paginate(10); // Cambiado de get() a paginate()
 
     if ($ubicaciones->isEmpty()) {
         return redirect()->route('ubicaciones.index')->with('error', 'El estante no existe.');

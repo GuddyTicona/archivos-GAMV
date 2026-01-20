@@ -150,15 +150,14 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
         ->middleware('permission:areas-despacho.index|role:administrador|despacho');
     
     // Reportes Área Despacho
-    Route::get('areas-despacho/{id}/reporte', [AreaDespachoController::class, 'generarReporte'])
-        ->middleware('permission:areas-despacho.index|role:administrador|despacho')
-        ->name('areas-despacho.generarReporte');
-    Route::get('/{areaId}/financiera/{financieraId}/reporte', [AreaDespachoController::class, 'reporteFinanciera'])
-        ->middleware('permission:areas-despacho.index|role:administrador|despacho')
-        ->name('areas-despacho.financiera.reporte');
-    Route::get('areas-despacho/{id}/reporte', [AreaDespachoController::class, 'generarReporte'])
-        ->middleware('permission:areas-despacho.index|role:administrador|despacho')
-        ->name('despacho.reporte');
+// Reportes Área Despacho
+Route::get('areas-despacho/{id}/reporte', [AreaDespachoController::class, 'generarReporte'])
+    ->middleware('permission:areas-despacho.index|role:administrador|despacho')
+    ->name('areas-despacho.generarReporte');
+
+Route::get('areas-despacho/{areaId}/financiera/{financieraId}/reporte', [AreaDespachoController::class, 'reporteFinanciera'])
+    ->middleware('permission:areas-despacho.index|role:administrador|despacho')
+    ->name('areas-despacho.financiera.reporte');
 
     /*
     |----------------------------------------------------------------------
@@ -243,7 +242,7 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
         ->middleware('permission:financieras.edit|role:administrador|smaf')
         ->name('financieras.cambiar_estado_administrativo');
     Route::put('/financieras/{id}/estado-despacho', [FinancieraController::class, 'actualizarEstadoDespacho'])
-        ->middleware('permission:despacho.edit|role:administrador')
+        ->middleware('permission:despacho.edit|role:administrador|tesoreria')
         ->name('financieras.estado_despacho');
     Route::put('/financieras/{id}/estado-tesoreria', [FinancieraController::class, 'actualizarEstadoTesoreria'])
         ->middleware('permission:tesoreria.edit|role:administrador')
@@ -377,11 +376,14 @@ Route::middleware(['auth', 'twofactor'])->group(function () {
     |----------------------------------------------------------------------
     */
     Route::resource('prestamos', PrestamoArchivoController::class)
-        ->middleware('permission:prestamos.index|role:administrador');
+        ->middleware('permission:prestamos.index|role:administrador|archivos');
     
     Route::get('/prestamos/{financiera}/create', [PrestamoArchivoController::class, 'create'])
         ->middleware('permission:prestamos.create|role:administrador|archivos')
         ->name('prestamos.create_financiera');
+    Route::post('/prestamos', [PrestamoArchivoController::class, 'store'])
+    ->middleware('permission:prestamos.create|role:administrador|archivos')
+    ->name('prestamos.store');
     Route::patch('/prestamos/{prestamo}/devolver', [PrestamoArchivoController::class, 'devolver'])
         ->middleware('permission:prestamos.edit|role:administrador|archivos')
         ->name('prestamos.devolver');

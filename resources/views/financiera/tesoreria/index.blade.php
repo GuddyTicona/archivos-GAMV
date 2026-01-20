@@ -1,5 +1,7 @@
 @extends('layouts.admin')
-
+@php
+    $notificaciones = $notificaciones ?? collect();
+@endphp
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -110,6 +112,7 @@
                                         @endforeach
                                     </td>
                                     <td>
+                                        @hasanyrole('administrador|tesoreria')
                                         <form action="{{ route('financieras.estado_despacho', $item->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PUT')
@@ -127,6 +130,7 @@
                                                     Rechazado
                                                 </button>
                                             </div>
+                                            @endhasanyrole
                                         </form>
                                     </td>
                                     <td>{{ $item->estado_tesoreria ?? 'Pendiente' }}</td>

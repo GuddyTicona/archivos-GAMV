@@ -58,27 +58,35 @@ public function show($id, Request $request)
 {
     $areaArchivo = AreaArchivo::findOrFail($id);
 
-    // Fecha más reciente de registros
+    // Fecha más reciente de registros - CORREGIDO: agregar whereNotNull
     $fecha_reciente = $areaArchivo->financieras()
+        ->whereNotNull('fecha_documento')  // Evitar nulls
         ->orderBy('fecha_documento', 'desc')
-        ->pluck('fecha_documento')
-        ->first();
+        ->value('fecha_documento');  // Usar value() es más eficiente que pluck()->first()
 
     // Determinar la fecha a mostrar: seleccionada por el usuario o la más reciente
     $fecha_acta = $request->filled('fecha') ? $request->fecha : $fecha_reciente;
 
     // Últimos registros: registros de la fecha más reciente
-    $ultimos_registros = $areaArchivo->financieras()->with('unidad')
-        ->whereDate('fecha_documento', $fecha_reciente)
-        ->orderBy('fecha_documento', 'desc')
-        ->get();
+    $ultimos_registros = collect();
+    if ($fecha_reciente) {  // CORREGIDO: verificar que no sea null
+        $ultimos_registros = $areaArchivo->financieras()
+            ->with('unidad', 'preventivos')
+            ->whereDate('fecha_documento', $fecha_reciente)
+            ->orderBy('fecha_documento', 'desc')
+            ->get();
+    }
 
-    // Fechas anteriores (actas previas)
-    $fechas_anteriores = $areaArchivo->financieras()
-        ->whereDate('fecha_documento', '<', $fecha_reciente)
-        ->orderBy('fecha_documento', 'desc')
-        ->distinct()
-        ->pluck('fecha_documento');
+    // Fechas anteriores (actas previas) - CORREGIDO
+    $fechas_anteriores = collect();
+    if ($fecha_reciente) {  // Solo buscar fechas anteriores si hay una fecha reciente
+        $fechas_anteriores = $areaArchivo->financieras()
+            ->whereNotNull('fecha_documento')  // Evitar nulls
+            ->whereDate('fecha_documento', '<', $fecha_reciente)
+            ->orderBy('fecha_documento', 'desc')
+            ->distinct()
+            ->pluck('fecha_documento');
+    }
 
     // Query principal
     $query = $areaArchivo->financieras()->with('unidad', 'preventivos');
@@ -105,12 +113,16 @@ public function show($id, Request $request)
               ->orWhereHas('unidad', fn($sub) => $sub->where('nombre_unidad', 'like', "%$busqueda%"));
         });
     } else {
-        // Filtrar por la fecha seleccionada si no hay búsqueda
-        $query->whereDate('fecha_documento', $fecha_acta);
+        // Filtrar por la fecha seleccionada si no hay búsqueda - CORREGIDO
+        if ($fecha_acta) {  // Verificar que la fecha no sea null
+            $query->whereDate('fecha_documento', $fecha_acta);
+        }
     }
 
     // Obtener registros con paginación
-    $registros_actuales = $query->orderBy('fecha_documento', 'desc')->paginate(5)->withQueryString();
+    $registros_actuales = $query->orderBy('fecha_documento', 'desc')
+        ->paginate(5)
+        ->withQueryString();
 
     return view('areas-archivos.show', compact(
         'areaArchivo',
