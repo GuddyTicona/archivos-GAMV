@@ -1,9 +1,8 @@
-<link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@n8n/chat@latest/dist/style.css" rel="stylesheet" />
 <script type="module">
-  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
-
+  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat@latest/dist/chat.bundle.es.js';
   createChat({
-    webhookUrl: 'https://guddyth.app.n8n.cloud/webhook/682292ab-5b6e-40ce-99f7-8bca3fa8e55b/chat',
+    webhookUrl: 'http://localhost:5678/webhook/520c5e84-8a84-4227-b1d6-b343ee666d1c/chat',
     webhookConfig: {
       method: 'POST',
       headers: {}
