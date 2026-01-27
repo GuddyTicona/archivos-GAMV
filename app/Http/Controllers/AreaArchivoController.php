@@ -58,65 +58,55 @@ public function show($id, Request $request)
 {
     $areaArchivo = AreaArchivo::findOrFail($id);
 
-    // Fecha más reciente de registros - CORREGIDO: agregar whereNotNull
-    $fecha_reciente = $areaArchivo->financieras()
-        ->whereNotNull('fecha_documento')  // Evitar nulls
+    // Fecha más reciente de registros
+    $ultimoRegistro = $areaArchivo->financieras()
+        ->whereNotNull('fecha_documento')
         ->orderBy('fecha_documento', 'desc')
-        ->value('fecha_documento');  // Usar value() es más eficiente que pluck()->first()
+        ->first();
+    
+    $fecha_reciente = $ultimoRegistro ? \Carbon\Carbon::parse($ultimoRegistro->fecha_documento)->startOfDay() : null;
 
-    // Determinar la fecha a mostrar: seleccionada por el usuario o la más reciente
-    $fecha_acta = $request->filled('fecha') ? $request->fecha : $fecha_reciente;
+    // Fecha seleccionada por el usuario o la más reciente
+    $fecha_acta = $request->filled('fecha') 
+        ? \Carbon\Carbon::parse($request->fecha)->startOfDay() 
+        : $fecha_reciente;
 
-    // Últimos registros: registros de la fecha más reciente
-    $ultimos_registros = collect();
-    if ($fecha_reciente) {  // CORREGIDO: verificar que no sea null
-        $ultimos_registros = $areaArchivo->financieras()
-            ->with('unidad', 'preventivos')
-            ->whereDate('fecha_documento', $fecha_reciente)
-            ->orderBy('fecha_documento', 'desc')
-            ->get();
-    }
-
-    // Fechas anteriores (actas previas) - CORREGIDO
-    $fechas_anteriores = collect();
-    if ($fecha_reciente) {  // Solo buscar fechas anteriores si hay una fecha reciente
-        $fechas_anteriores = $areaArchivo->financieras()
-            ->whereNotNull('fecha_documento')  // Evitar nulls
-            ->whereDate('fecha_documento', '<', $fecha_reciente)
-            ->orderBy('fecha_documento', 'desc')
-            ->distinct()
-            ->pluck('fecha_documento');
-    }
+    // Todas las fechas disponibles para el selector
+    $fechas_anteriores = $areaArchivo->financieras()
+        ->whereNotNull('fecha_documento')
+        ->selectRaw("DATE(fecha_documento) as fecha")
+        ->distinct()
+        ->orderBy('fecha', 'desc')
+        ->pluck('fecha');
 
     // Query principal
-    $query = $areaArchivo->financieras()->with('unidad', 'preventivos');
+    $query = $areaArchivo->financieras()->with(['unidad', 'preventivos']);
 
+    // PRIMERO: Aplicar filtro de fecha (excepto cuando hay búsqueda sin fecha específica)
+    if ($fecha_acta && !($request->filled('buscar') && !$request->filled('fecha'))) {
+        $query->whereDate('fecha_documento', $fecha_acta->toDateString());
+    }
+
+    // SEGUNDO: Aplicar búsqueda de texto si existe
     if ($request->filled('buscar')) {
         $busqueda = $request->buscar;
         $query->where(function ($q) use ($busqueda) {
             $q->where('entidad', 'like', "%$busqueda%")
               ->orWhere('tipo_documento', 'like', "%$busqueda%")
               ->orWhere('tipo_ejecucion', 'like', "%$busqueda%")
-              ->orWhere('estado_documento', 'like', "%$busqueda%")
+             
               ->orWhere('estado_administrativo', 'like', "%$busqueda%")
-              ->orWhere('fecha_envio', 'like', "%$busqueda%")
               ->orWhere('numero_hoja_ruta', 'like', "%$busqueda%")
               ->orWhere('numero_pago', 'like', "%$busqueda%")
               ->orWhere('numero_compromiso', 'like', "%$busqueda%")
               ->orWhere('numero_devengado', 'like', "%$busqueda%")
-              ->orWhere('numero_preventivo', 'like', "%$busqueda%")
-              ->orWhere('numero_secuencia', 'like', "%$busqueda%")
-              ->orWhereHas('preventivos', function ($q2) use ($busqueda) {
-                  $q2->where('descripcion_gasto', 'like', "%$busqueda%")
-                     ->orWhere('numero_preventivo', 'like', "%$busqueda%");
-              })
-              ->orWhereHas('unidad', fn($sub) => $sub->where('nombre_unidad', 'like', "%$busqueda%"));
+              ->orWhereHas('unidad', fn($sub) => $sub->where('nombre_unidad', 'like', "%$busqueda%"))
+              ->orWhereHas('preventivos', fn($sub) => $sub
+                  ->where('numero_preventivo', 'like', "%$busqueda%")
+                  ->orWhere('numero_secuencia', 'like', "%$busqueda%")
+                  ->orWhere('descripcion_gasto', 'like', "%$busqueda%")
+                  ->orWhere('empresa', 'like', "%$busqueda%"));
         });
-    } else {
-        // Filtrar por la fecha seleccionada si no hay búsqueda - CORREGIDO
-        if ($fecha_acta) {  // Verificar que la fecha no sea null
-            $query->whereDate('fecha_documento', $fecha_acta);
-        }
     }
 
     // Obtener registros con paginación
@@ -126,7 +116,6 @@ public function show($id, Request $request)
 
     return view('areas-archivos.show', compact(
         'areaArchivo',
-        'ultimos_registros',
         'fechas_anteriores',
         'registros_actuales',
         'fecha_acta',

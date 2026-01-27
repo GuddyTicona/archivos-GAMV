@@ -348,7 +348,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             </ul>
                         </li>
                         @endhasanyrole
-                        <!-- Archivos Financieros -->
+                        <!-- Archivos Financieros 
                         @role('administrador')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
@@ -370,7 +370,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-                        @endrole
+                        @endrole-->
                         <!-- Administración SMAF -->
                         @hasanyrole('administrador|smaf')
                         <li class="nav-item">
@@ -494,7 +494,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         </li>
                         @endhasanyrole
 
-                        <!-- SMAF Registros -->
+                        <!-- SMAF Registros 
                         @role('administrador')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
@@ -510,8 +510,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-                        @endrole
-                        <!-- Historial Archivos -->
+                        @endrole-->
+                        <!-- Historial Archivos 
                         @role('administrador')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
@@ -533,7 +533,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-                        @endrole
+                        @endrole-->
 
                         <!-- Administración Usuarios -->
                         @role('administrador')

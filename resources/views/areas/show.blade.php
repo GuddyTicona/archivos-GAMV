@@ -6,45 +6,63 @@
 
     {{-- Búsqueda --}}
     <form method="GET" class="mb-4">
-        <div class="input-group">
-            <input type="text" name="buscar" value="{{ request('buscar') }}" class="form-control" placeholder="Buscar registros financieros">
-            <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Buscar</button>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <input type="text" name="buscar" value="{{ request('buscar') }}" class="form-control" placeholder="Buscar por entidad, documento, unidad, preventivo, empresa...">
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100" type="submit">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
         </div>
-        @if(request('buscar'))
+        
+        {{-- Mantener fecha si existe durante la búsqueda --}}
+        @if(request('fecha'))
+            <input type="hidden" name="fecha" value="{{ request('fecha') }}">
+        @endif
+        
+        @if(request('buscar') || (request('fecha') && request('fecha') != $fecha_reciente))
         <div class="mt-2">
             <a href="{{ route('areas.show', $area->id) }}" class="btn btn-sm btn-outline-danger">
-                Limpiar búsqueda <i class="bi bi-x-circle"></i>
+               </i> Limpiar 
             </a>
+       
+            
+           
         </div>
         @endif
     </form>
 
-    {{-- Determinar qué registros mostrar --}}
     @php
-        $mostrarRegistros = request()->filled('buscar') ? $registros_actuales : ($registros_actuales ?? $ultimos_registros ?? collect());
         $fechaParaReporte = request('fecha') ?? $fecha_acta ?? $fecha_reciente;
     @endphp
 
-    @if(!$mostrarRegistros->isEmpty())
+    @if(!$registros_actuales->isEmpty())
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-warning text-white fw-bold d-flex justify-content-between align-items-center">
-            @if(request()->filled('fecha'))
+            @if(request()->filled('buscar'))
+                Resultados de búsqueda
+                @if(request('fecha'))
+                    - Fecha: {{ \Carbon\Carbon::parse($fechaParaReporte)->format('d/m/Y') }}
+                @endif
+                ({{ $registros_actuales->count() }} resultado{{ $registros_actuales->count() != 1 ? 's' : '' }})
+            @elseif(request()->filled('fecha'))
                 Acta de la fecha: {{ \Carbon\Carbon::parse($fechaParaReporte)->format('d/m/Y') }}
             @else
                 Registros recientes (Fecha: {{ \Carbon\Carbon::parse($fechaParaReporte)->format('d/m/Y') }})
             @endif
 
             {{-- Botón de descarga --}}
-           <form action="{{ route('areas.generarReporte', ['id' => $area->id]) }}" method="GET" target="_blank">
-    <input type="hidden" name="fecha" value="{{ $fechaParaReporte }}">
-    <button class="btn btn-light btn-sm">
-        <i class="bi bi-download"></i> Descargar Reporte Financiera
-    </button>
-</form>
-
+            <form action="{{ route('areas.generarReporte', ['id' => $area->id]) }}" method="GET" target="_blank">
+                <input type="hidden" name="fecha" value="{{ $fechaParaReporte }}">
+                <button class="btn btn-light btn-sm">
+                    <i class="bi bi-download"></i> Descargar Reporte
+                </button>
+            </form>
         </div>
         <div class="card-body">
-            @foreach($mostrarRegistros as $registro)
+            @foreach($registros_actuales as $registro)
                 @php
                     $color = match($registro->estado_administrativo) {
                         'recibido' => 'success',
@@ -76,13 +94,6 @@
                                 <label class="form-label fw-bold">Fecha Envío</label>
                                 <input type="text" class="form-control" value="{{ \Carbon\Carbon::parse($registro->fecha_envio)->format('d/m/Y') }}" readonly>
                             </div>
-                            @if($registro->documento_adjunto)
-                            <div class="col-12">
-                                <!--<a href="{{ asset('storage/' . $registro->documento_adjunto) }}" target="_blank" class="btn btn-outline-primary w-100">
-                                    <i class="bi bi-file-earmark-text"></i> Ver Documento
-                                </a>-->
-                            </div>
-                            @endif
                         </div>
 
                         {{-- Preventivos --}}
@@ -116,44 +127,55 @@
         </div>
     </div>
     @else
-        <div class="alert alert-warning">No hay registros para mostrar.</div>
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i> 
+            No se encontraron registros
+            @if(request('buscar'))
+                que coincidan con la búsqueda "{{ request('buscar') }}"
+            @endif
+            @if(request('fecha'))
+                para la fecha {{ \Carbon\Carbon::parse(request('fecha'))->format('d/m/Y') }}
+            @endif
+        </div>
     @endif
 
     {{-- Actas anteriores --}}
-@if($fechas_anteriores->isNotEmpty())
-<div class="card mb-4 shadow-sm">
-    <div class="card-header bg-warning text-white fw-bold">Ver Actas Anteriores</div>
-    <div class="card-body">
-        <form method="GET" class="row g-3 align-items-center">
-            <div class="col-md-6 mb-3">
-                <label for="fecha">Seleccione una fecha</label>
-                <select name="fecha" id="fecha" class="form-control">
-                    <option value="">-- Seleccione una fecha --</option>
-                    @foreach($fechas_anteriores as $fecha)
-                        <option value="{{ $fecha }}" {{ request('fecha') == $fecha ? 'selected' : '' }}>
-                            {{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-6 mb-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">Ver Acta</button>
-            </div>
-        </form>
-
-        @if(request('fecha') && request('fecha') != $fecha_reciente)
-        <div class="mt-3">
-            <a href="{{ route('areas.show', $area->id) }}" class="btn btn-secondary">
-                Volver a registros recientes
-            </a>
+    @if($fechas_anteriores->isNotEmpty())
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-warning text-white fw-bold">Ver Actas por Fecha</div>
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-center">
+                <div class="col-md-6 mb-3">
+                    <label for="fecha">Seleccione una fecha</label>
+                    <select name="fecha" id="fecha" class="form-control">
+                        <option value="">-- Todas las fechas --</option>
+                        @foreach($fechas_anteriores as $fecha)
+                            <option value="{{ $fecha }}" {{ request('fecha') == $fecha ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                {{-- Mantener búsqueda si existe --}}
+                @if(request('buscar'))
+                    <input type="hidden" name="buscar" value="{{ request('buscar') }}">
+                @endif
+                
+                <div class="col-md-6 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        </i> Ver actas 
+                    </button>
+                </div>
+            </form>
         </div>
-        @endif
     </div>
+    @endif
+
+    <a href="{{ route('areas.index') }}" class="btn btn-secondary mt-3">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
 </div>
-@endif
-
-<a href="{{ route('areas.index') }}" class="btn btn-secondary mt-3"><i class="bi bi-arrow-left"></i> Volver</a>
-
 
 <style>
 .hover-shadow:hover {

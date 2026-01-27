@@ -122,9 +122,6 @@
                     </table>
                 </div>
 
-                <div class="mt-3">
-                    {!! $financieras->withQueryString()->links() !!}
-                </div>
             </div>
         </div>
     </div>

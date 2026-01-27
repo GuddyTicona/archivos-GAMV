@@ -217,22 +217,20 @@ body {
 <div class="container py-4">
     @auth
     <!-- BANNER DE BIENVENIDA -->
-    <div class="welcome-banner">
-        <h2>¡Bienvenido, {{ Auth::user()->name }}!</h2>
+    <!--<div class="welcome-banner">
+      
         <p class="mb-2">Sistema en Gestion de Archivos Financieros</p>
         <div class="roles-container">
             @foreach(Auth::user()->getRoleNames() as $role)
                 <span class="role-badge">{{ ucfirst($role) }}</span>
             @endforeach
         </div>
-    </div>
+    </div>-->
 
     {{-- ADMINISTRADOR --}}
     @role('administrador')
     <div class="mb-4">
-        <h5>
-            <i class="bi bi-shield-check me-2"></i>Panel de Administrador
-        </h5>
+       
         <div class="row g-4 mb-4">
             <div class="col-md-6 col-lg-3">
                 <div class="card">
@@ -631,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: [
                     'Unidades', 'Archivos', 'Categorías',
                     'SMAF', 'Despacho', 'Tesorería',
-                    'Archivos Financieros', 'Historial', 'Usuarios'
+                    'Archivos Financieros', 'Usuarios'
                 ],
                 datasets: [{
                     label: 'Cantidad',
@@ -643,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         {{ count($financierasDespacho ?? []) }},
                         {{ count($financierasTesoreria ?? []) }},
                         {{ count($financierasArchivos ?? []) }},
-                        {{ count($historialArchivos) }},
+            
                         {{ count($usuarios) }}
                     ],
                     backgroundColor: [

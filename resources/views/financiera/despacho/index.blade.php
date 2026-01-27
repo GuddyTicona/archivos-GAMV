@@ -53,7 +53,7 @@
             {{-- Tabla financieras --}}
             <div class="card">
                 <div class="card-header">
-                    <span id="card_title">{{ __('Registros Financieros (Despacho)') }}</span>
+                    <span id="card_title">{{ __('Registros Financieros Despacho') }}</span>
                 </div>
 
                 <div class="card-body bg-white">

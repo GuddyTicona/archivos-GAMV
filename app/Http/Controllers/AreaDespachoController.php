@@ -60,60 +60,58 @@ public function show($id, Request $request)
     $areaDespacho = AreaDespacho::findOrFail($id);
 
     // Fecha más reciente de registros
-    $fecha_reciente = $areaDespacho->financieras()
+    $ultimoRegistro = $areaDespacho->financieras()
         ->orderBy('fecha_documento', 'desc')
-        ->pluck('fecha_documento')
         ->first();
+    
+    $fecha_reciente = $ultimoRegistro ? \Carbon\Carbon::parse($ultimoRegistro->fecha_documento)->startOfDay() : null;
 
-    // Determinar la fecha a mostrar
-    $fecha_acta = $request->filled('fecha') ? $request->fecha : $fecha_reciente;
+    // Fecha seleccionada por el usuario o la más reciente
+    $fecha_acta = $request->filled('fecha') 
+        ? \Carbon\Carbon::parse($request->fecha)->startOfDay() 
+        : $fecha_reciente;
 
-    // Últimos registros: registros de la fecha más reciente
-    $ultimos_registros = $areaDespacho->financieras()->with('unidad')
-        ->whereDate('fecha_documento', $fecha_reciente)
-        ->orderBy('fecha_documento', 'desc')
-        ->get();
-
-    // Fechas anteriores (actas previas)
+    // Todas las fechas disponibles para el selector
     $fechas_anteriores = $areaDespacho->financieras()
-        ->whereDate('fecha_documento', '<', $fecha_reciente)
-        ->orderBy('fecha_documento', 'desc')
+        ->selectRaw("DATE(fecha_documento) as fecha")
         ->distinct()
-        ->pluck('fecha_documento');
+        ->orderBy('fecha', 'desc')
+        ->pluck('fecha');
 
-    // Query principal: registros filtrados por la fecha seleccionada o búsqueda
-    $query = $areaDespacho->financieras()->with('unidad', 'preventivos');
+    // Query principal
+    $query = $areaDespacho->financieras()->with(['unidad', 'preventivos']);
 
+    // PRIMERO: Aplicar filtro de fecha (excepto cuando hay búsqueda sin fecha específica)
+    if ($fecha_acta && !($request->filled('buscar') && !$request->filled('fecha'))) {
+        $query->whereDate('fecha_documento', $fecha_acta->toDateString());
+    }
+
+    // SEGUNDO: Aplicar búsqueda de texto si existe
     if ($request->filled('buscar')) {
         $busqueda = $request->buscar;
         $query->where(function ($q) use ($busqueda) {
             $q->where('entidad', 'like', "%$busqueda%")
               ->orWhere('tipo_documento', 'like', "%$busqueda%")
               ->orWhere('tipo_ejecucion', 'like', "%$busqueda%")
-              ->orWhere('estado_documento', 'like', "%$busqueda%")
               ->orWhere('estado_administrativo', 'like', "%$busqueda%")
-              ->orWhere('fecha_documento', 'like', "%$busqueda%")
               ->orWhere('numero_hoja_ruta', 'like', "%$busqueda%")
               ->orWhere('numero_pago', 'like', "%$busqueda%")
               ->orWhere('numero_compromiso', 'like', "%$busqueda%")
               ->orWhere('numero_devengado', 'like', "%$busqueda%")
-              ->orWhereHas('preventivos', function($q2) use ($busqueda) {
-                  $q2->where('descripcion_gasto', 'like', "%$busqueda%")
-                     ->orWhere('numero_preventivo', 'like', "%$busqueda%");
-              })
-              ->orWhereHas('unidad', fn($sub) => $sub->where('nombre_unidad', 'like', "%$busqueda%"));
+              ->orWhereHas('unidad', fn($sub) => $sub->where('nombre_unidad', 'like', "%$busqueda%"))
+              ->orWhereHas('preventivos', fn($sub) => $sub
+                  ->where('numero_preventivo', 'like', "%$busqueda%")
+                  ->orWhere('descripcion_gasto', 'like', "%$busqueda%"));
         });
-    } else {
-        // Filtrar por fecha seleccionada si no hay búsqueda
-        $query->whereDate('fecha_documento', $fecha_acta);
     }
 
     // Obtener registros con paginación
-    $registros_actuales = $query->orderBy('fecha_documento', 'desc')->paginate(5)->withQueryString();
+    $registros_actuales = $query->orderBy('fecha_documento', 'desc')
+        ->paginate(5)
+        ->withQueryString();
 
     return view('areas-despacho.show', compact(
         'areaDespacho',
-        'ultimos_registros',
         'fechas_anteriores',
         'registros_actuales',
         'fecha_acta',
