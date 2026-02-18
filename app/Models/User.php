@@ -8,10 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -24,8 +25,8 @@ class User extends Authenticatable
         'password',
         'fecha_ingreso',
         'estado',
-        'two_factor_code',
-        'two_factor_expires_at', 
+       // 'two_factor_code',
+        //'two_factor_expires_at', 
     ];
 
     /**
@@ -36,13 +37,15 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
        'remember_token',
+       'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
     protected $dates = [
         'updated_at',
         'created_at',
         'deleted_at',
-        'email_verified_at',
-        'two_factor_expires_at',
+        'email_verified_at' => 'datetime',
+        'two_factor_confirmed_at' => 'datetime',
     ];
   
     /**
@@ -51,31 +54,6 @@ class User extends Authenticatable
      * @return array<string, string>
      */
    
-
-    //parte de email
-// En App\Models\User.php o donde esté tu modelo
-
-     public function regenerateTwoFactorCode()
-    {
-       
-       $this->timestamps = false; //Dont update the 'updated_at' field yet
-        
-        $this->two_factor_code = rand(100000, 999999);
-        $this->two_factor_expires_at = now()->addMinutes(10);
-        $this->save();
-    }
-
-    /**
-     * Reset the MFA code generated earlier
-     */
-    public function resetTwoFactorCode()
-    {
-        $this->timestamps = false; //Dont update the 'updated_at' field yet
-        
-        $this->two_factor_code = null;
-        $this->two_factor_expires_at = null;
-        $this->save();
-    }
 
     
 }

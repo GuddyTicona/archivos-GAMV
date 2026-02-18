@@ -50,7 +50,7 @@
                                         <div class="text-danger small">{{ $message }}</div>
                                     @enderror
                                 </div>
-
+<!--
                                 <div class="form-check mb-3">
                                     <input class="form-check-input" type="checkbox" name="remember" id="remember"
                                         {{ old('remember') ? 'checked' : '' }}>

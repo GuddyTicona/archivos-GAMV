@@ -13,10 +13,12 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "deepseek-php/deepseek-laravel": "^2.0",
         "guzzlehttp/guzzle": "^7.9",
+        "laravel/fortify": "^1.34",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
         "openai-php/client": "^0.18.0",
+        "pragmarx/google2fa": "^9.0",
         "pragmarx/google2fa-laravel": "^2.3",
         "pragmarx/google2fa-qrcode": "^3.0",
         "spatie/laravel-permission": "^6.18"

@@ -25,11 +25,33 @@ use App\Http\Controllers\ChatController;
 | RUTAS DE AUTENTICACIÓN
 |--------------------------------------------------------------------------
 */
-Auth::routes(['register' => true]);
+//Auth::routes(['register' => true]);
 
 // Verificación 2FA
-Route::get('verify/resend', [TwoFactorController::class, 'resend'])->name('verify.resend');
-Route::resource('verify', TwoFactorController::class)->only(['index', 'store']);
+//Route::get('verify/resend', [TwoFactorController::class, 'resend'])->name('verify.resend');
+//Route::resource('verify', TwoFactorController::class)->only(['index', 'store']);
+Route::middleware(['auth'])->group(function () {
+    Route::view('/profile/security', 'profile.security')->name('profile.security');
+    
+    Route::post('/user/confirmed-two-factor-authentication', function (Illuminate\Http\Request $request) {
+        $user = $request->user();
+        
+        // Verificar el código
+        $code = $request->input('code');
+        $tfaEngine = app(\Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider::class);
+        
+        if (!$tfaEngine->verify(decrypt($user->two_factor_secret), $code)) {
+            return back()->withErrors(['code' => 'El código es inválido.']);
+        }
+        
+        // Confirmar 2FA
+        $user->two_factor_confirmed_at = now();
+        $user->save();
+        
+        return redirect()->route('profile.security')->with('status', '2FA confirmado correctamente.');
+    })->name('two-factor.confirm');
+});
+
 
 /*
 |--------------------------------------------------------------------------
@@ -43,8 +65,7 @@ Route::get('/', [AdminController::class, 'index'])->name('index');
 | RUTAS PROTEGIDAS POR AUTENTICACIÓN
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'twofactor'])->group(function () {
-    
+Route::middleware(['auth', 'ensure.2fa', 'twofactor'])->group(function () {
     /*
     |----------------------------------------------------------------------
     | DASHBOARD Y VISTAS PRINCIPALES
