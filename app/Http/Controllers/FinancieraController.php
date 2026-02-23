@@ -26,8 +26,7 @@ class FinancieraController extends Controller
     
     {
         
-        $financieras = Financiera::with(['unidad', 'area', 'pr
-        eventivos'])
+        $financieras = Financiera::with(['unidad', 'area', 'preventivos'])
             ->orderBy('created_at', 'asc')
             
             ->paginate();

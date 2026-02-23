@@ -162,7 +162,7 @@
             </div>
 
             <!-- Paginación -->
-            {!! $financieras->withQueryString()->links() !!}
+    
         </div>
     </div>
 </div>

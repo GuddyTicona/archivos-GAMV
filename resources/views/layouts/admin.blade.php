@@ -348,7 +348,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             </ul>
                         </li>
                         @endhasanyrole
-                        <!-- Archivos Financieros 
+                      
                         @role('administrador')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
@@ -356,12 +356,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 <p>Archivos Financieros <i class="right fas fa-angle-left"></i></p>
                             </a>
                             <ul class="nav nav-treeview">
+                                <!--
                                 <li class="nav-item">
                                     <a href="{{ url('financieras/create') }}" class="nav-link">
                                         <i class="bi bi-plus-circle"></i>
                                         <p>Crear Financiera</p>
                                     </a>
-                                </li>
+                                </li>-->
                                 <li class="nav-item">
                                     <a href="{{ url('financieras') }}" class="nav-link">
                                         <i class="bi bi-list-ul"></i>
@@ -370,7 +371,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                             </ul>
                         </li>
-                        @endrole-->
+                        @endrole
                         <!-- Administración SMAF -->
                         @hasanyrole('administrador|smaf')
                         <li class="nav-item">
