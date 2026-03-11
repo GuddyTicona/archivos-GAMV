@@ -1,6 +1,4 @@
-@extends('layouts.admin')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
@@ -9,22 +7,22 @@
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span id="card_title">Listado de Archivos</span>
                         <div class="float-right">
-                            <a href="{{ route('archivos.create') }}" class="btn btn-primary btn-sm float-right">
+                            <a href="<?php echo e(route('archivos.create')); ?>" class="btn btn-primary btn-sm float-right">
                                 Crear nuevo archivo
                             </a>
                         </div>
                     </div>
                 </div>
 
-                @if($message = Session::get('mensaje'))
+                <?php if($message = Session::get('mensaje')): ?>
                 <script>
                 Swal.fire({
                     title: "Felicidades",
-                    text: "{{$message}}",
+                    text: "<?php echo e($message); ?>",
                     icon: "success"
                 });
                 </script>
-                @endif
+                <?php endif; ?>
 
                 <div class="card-body bg-white">
                     <div class="table-responsive">
@@ -48,75 +46,76 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($archivos as $archivo)
+                                <?php $__currentLoopData = $archivos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $archivo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    <td>{{ ++$i }}</td>
-                                    <td>{{ $archivo->codigo_archivo }}</td>
-                                    <td>{{ $archivo->descripcion_documento }}</td>
-                                    <td>{{ $archivo->tomo }}</td>
-                                    <td>{{ $archivo->numero_foja }}</td>
-                                    <td>{{ $archivo->gestion }}</td>
-                                    <td>{{ $archivo->unidad_instalacion }}</td>
-                                    <td>{{ $archivo->observaciones }}</td>
-                                    <td>{{ $archivo->fecha_registro }}</td>
-                                    <td>{{ $archivo->unidad->nombre_unidad }}</td>
-                                    <td>{{ $archivo->estado }}</td>
-                                    <td>{{ optional($archivo->Categorias)->nombre_categoria }}</td>
+                                    <td><?php echo e(++$i); ?></td>
+                                    <td><?php echo e($archivo->codigo_archivo); ?></td>
+                                    <td><?php echo e($archivo->descripcion_documento); ?></td>
+                                    <td><?php echo e($archivo->tomo); ?></td>
+                                    <td><?php echo e($archivo->numero_foja); ?></td>
+                                    <td><?php echo e($archivo->gestion); ?></td>
+                                    <td><?php echo e($archivo->unidad_instalacion); ?></td>
+                                    <td><?php echo e($archivo->observaciones); ?></td>
+                                    <td><?php echo e($archivo->fecha_registro); ?></td>
+                                    <td><?php echo e($archivo->unidad->nombre_unidad); ?></td>
+                                    <td><?php echo e($archivo->estado); ?></td>
+                                    <td><?php echo e(optional($archivo->Categorias)->nombre_categoria); ?></td>
 
                                     <td>
-                                        @if ($archivo->documento_adjunto)
-                                        <a href="{{ asset('storage/' . $archivo->documento_adjunto) }}" target="_blank"
+                                        <?php if($archivo->documento_adjunto): ?>
+                                        <a href="<?php echo e(asset('storage/' . $archivo->documento_adjunto)); ?>" target="_blank"
                                             class="btn btn-sm btn-outline-secondary">
                                             Ver documento
                                         </a>
-                                        @else
+                                        <?php else: ?>
                                         <span class="text-muted">No adjunto</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        <form action="{{ route('archivos.destroy', $archivo->id) }}" method="POST">
+                                        <form action="<?php echo e(route('archivos.destroy', $archivo->id)); ?>" method="POST">
                                             <a class="btn btn-sm btn-primary"
-                                                href="{{ route('archivos.show', $archivo->id) }}">
+                                                href="<?php echo e(route('archivos.show', $archivo->id)); ?>">
                                                 Ver detalles </a>
                                             <a class="btn btn-sm btn-success"
-                                                href="{{ route('archivos.edit', $archivo->id) }}">
+                                                href="<?php echo e(route('archivos.edit', $archivo->id)); ?>">
                                                 Editar </a>
-                                            @php
+                                            <?php
                                             // Verificar si el archivo tiene un préstamo activo
                                             $prestamoActivo =
                                             $archivo->prestamos()->whereNull('fecha_devolucion')->first();
-                                            @endphp
+                                            ?>
 
-                                            @if(!$prestamoActivo)
-                                            <a href="{{ route('prestamo_central.create_archivo', ['archivo_id' => $archivo->id]) }}"
+                                            <?php if(!$prestamoActivo): ?>
+                                            <a href="<?php echo e(route('prestamo_central.create_archivo', ['archivo_id' => $archivo->id])); ?>"
                                                 class="btn btn-outline-success btn-sm">
                                                 Prestar
                                             </a>
-                                            @else
+                                            <?php else: ?>
                                             <span class="badge bg-danger mx-2">Actualmente prestado</span>
-                                            @endif
+                                            <?php endif; ?>
 
 
-                                            @csrf
-                                            @method('DELETE')
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('DELETE'); ?>
                                             <button type="submit" class="btn btn-danger btn-sm"
                                                 onclick="event.preventDefault(); confirm('Esta seguro de eliminar?') ? this.closest('form').submit() : false;">
                                                 Eliminar</i> </button>
                                         </form>
                                     </td>
                                 </tr>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            {!! $archivos->withQueryString()->links() !!}
+            <?php echo $archivos->withQueryString()->links(); ?>
+
         </div>
     </div>
 </div>
 
-{{-- SCRIPT DATATABLE --}}
+
 <script>
 $(function() {
     $("#example1").DataTable({
@@ -207,4 +206,5 @@ $(function() {
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\sisarchivo\resources\views/archivo/index.blade.php ENDPATH**/ ?>

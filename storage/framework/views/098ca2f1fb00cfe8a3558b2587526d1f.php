@@ -1,6 +1,6 @@
-@extends('layouts.admin')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
@@ -9,22 +9,22 @@
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span id="card_title">Listado de Préstamos de Archivos</span>
 
-                        <a href="{{ route('prestamo_central.create') }}" class="btn btn-primary btn-sm">
+                        <a href="<?php echo e(route('prestamo_central.create')); ?>" class="btn btn-primary btn-sm">
                             Registrar nuevo préstamo
                         </a>
                     </div>
                 </div>
 
-                {{-- MENSAJE --}}
-                @if($message = Session::get('mensaje'))
+                
+                <?php if($message = Session::get('mensaje')): ?>
                 <script>
                 Swal.fire({
                     title: "Éxito",
-                    text: "{{$message}}",
+                    text: "<?php echo e($message); ?>",
                     icon: "success"
                 });
                 </script>
-                @endif
+                <?php endif; ?>
 
                 <div class="card-body bg-white">
                     <div class="table-responsive">
@@ -48,58 +48,59 @@
 
                             <tbody>
 
-                                @foreach ($prestamos as $prestamo)
+                                <?php $__currentLoopData = $prestamos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $prestamo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
 
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td><?php echo e($loop->iteration); ?></td>
 
                                     <td>
-                                        {{ $prestamo->archivo->codigo_archivo ?? '-' }}
+                                        <?php echo e($prestamo->archivo->codigo_archivo ?? '-'); ?>
+
                                     </td>
 
-                                    <td>{{ $prestamo->solicitante }}</td>
+                                    <td><?php echo e($prestamo->solicitante); ?></td>
 
-                                    <td>{{ $prestamo->cargo_departamento ?? '-' }}</td>
+                                    <td><?php echo e($prestamo->cargo_departamento ?? '-'); ?></td>
 
-                                    <td>{{ $prestamo->motivo_prestamo ?? '-' }}</td>
+                                    <td><?php echo e($prestamo->motivo_prestamo ?? '-'); ?></td>
 
-                                    <td>{{ $prestamo->observaciones ?? '-' }}</td>
+                                    <td><?php echo e($prestamo->observaciones ?? '-'); ?></td>
 
-                                    <td>{{ $prestamo->fecha_prestamo }}</td>
+                                    <td><?php echo e($prestamo->fecha_prestamo); ?></td>
 
-                                    <td>{{ $prestamo->fecha_devolucion ?? '-' }}</td>
+                                    <td><?php echo e($prestamo->fecha_devolucion ?? '-'); ?></td>
 
                                     <td>
-                                        @if($prestamo->fecha_devolucion === null)
+                                        <?php if($prestamo->fecha_devolucion === null): ?>
                                         <span class="badge bg-danger">Prestado</span>
-                                        @else
+                                        <?php else: ?>
                                         <span class="badge bg-success">Recepcionado</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
 
                                     <td>
 
                                         <div class="d-flex gap-1">
 
-                                            {{-- BOTON DEVOLVER --}}
-                                            @if($prestamo->fecha_devolucion === null)
-                                            <form action="{{ route('prestamo_central.devolver',$prestamo->id) }}"
+                                            
+                                            <?php if($prestamo->fecha_devolucion === null): ?>
+                                            <form action="<?php echo e(route('prestamo_central.devolver',$prestamo->id)); ?>"
                                                 method="POST">
-                                                @csrf
-                                                @method('PATCH')
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('PATCH'); ?>
 
                                                 <button class="btn btn-primary btn-sm" title="Marcar como devuelto">
                                                     Devolver
                                                 </button>
                                             </form>
-                                            @endif
+                                            <?php endif; ?>
 
 
-                                            {{-- BOTON ELIMINAR --}}
-                                            <form action="{{ route('prestamo_central.destroy',$prestamo->id) }}"
+                                            
+                                            <form action="<?php echo e(route('prestamo_central.destroy',$prestamo->id)); ?>"
                                                 method="POST">
-                                                @csrf
-                                                @method('DELETE')
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('DELETE'); ?>
 
                                                 <button type="submit" class="btn btn-danger btn-sm"
                                                     onclick="return confirm('¿Seguro que deseas eliminar este préstamo?')">
@@ -114,7 +115,7 @@
                                     </td>
 
                                 </tr>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                             </tbody>
 
@@ -124,14 +125,15 @@
                 </div>
             </div>
 
-            {!! $prestamos->withQueryString()->links() !!}
+            <?php echo $prestamos->withQueryString()->links(); ?>
+
 
         </div>
     </div>
 </div>
 
 
-{{-- DATATABLE --}}
+
 <script>
 $(function() {
 
@@ -253,4 +255,5 @@ $(function() {
 });
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\sisarchivo\resources\views/prestamo_central/index.blade.php ENDPATH**/ ?>
